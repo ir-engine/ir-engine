@@ -23,14 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEntityContext } from '@ir-engine/ecs'
-import { getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { QueryReactor, defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { State, getState } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { ResourceAssetType, ResourceState } from '@ir-engine/spatial/src/resources/ResourceState'
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import React from 'react'
@@ -75,10 +73,10 @@ export const AnimationSystem = defineSystem({
 })
 
 const AnimationReactor = () => {
-  const entity = useEntityContext()
-  ResourceState.useEntityResource(
-    entity,
-    useComponent(entity, AnimationComponent).animations as any as State<ResourceAssetType>
-  )
+  // const entity = useEntityContext()
+  // ResourceState.useEntityResource(
+  //   entity,
+  //   useComponent(entity, AnimationComponent).animations as any as State<ResourceAssetType>
+  // )
   return null
 }

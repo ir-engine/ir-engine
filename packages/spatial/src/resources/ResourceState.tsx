@@ -41,21 +41,21 @@ import {
 import {
   Engine,
   Entity,
-  QueryReactor,
+  Layers,
+  PresentationSystemGroup,
   UUIDComponent,
+  defineSystem,
   getAncestorWithComponents,
   getAuthoringCounterpart,
   getComponent,
   getOptionalComponent,
-  hasComponent,
-  useComponent,
-  useEntityContext
+  hasComponent
 } from '@ir-engine/ecs'
 
 import { NO_PROXY, State, defineState, getMutableState, getState, none, useMutableState } from '@ir-engine/hyperflux'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { Geometry } from '../common/constants/Geometry'
 import iterateObject3D from '../common/functions/iterateObject3D'
@@ -693,18 +693,6 @@ const removeEntityResource = (resource: Resource) => {
   dispose(asset)
 }
 
-const useEntityResource = (entity: Entity, state: State<ResourceAssetType>) => {
-  useEffect(() => {
-    const asset = state.get(NO_PROXY) as ResourceAssetType
-    const resources = addEntityResource(entity, asset)
-    if (!resources.length) return
-
-    return () => {
-      for (const resource of resources) removeEntityResource(resource)
-    }
-  }, [state])
-}
-
 const getAllResourcesOfType = (type: ResourceType) => {
   const resources = getState(ResourceState).resources
   const result = [] as Resource[]
@@ -735,7 +723,6 @@ export const ResourceState = defineState({
   getAllResourcesOfType,
 
   resourceCallbacks,
-  useEntityResource,
   addEntityResource,
   removeEntityResource,
   getResourceID,
@@ -748,19 +735,31 @@ export const ResourceState = defineState({
     useVisibleVertexCount
   },
   /** Removes a resource even if it is still being referenced, needed for updating assets in the studio */
-  __unsafeRemoveResource: removeResource,
-
-  reactor: () => {
-    return (
-      <>
-        <QueryReactor Components={[ObjectComponent]} ChildEntityReactor={ObjectReactor} />
-      </>
-    )
-  }
+  __unsafeRemoveResource: removeResource
 })
 
-const ObjectReactor = () => {
-  const entity = useEntityContext()
-  ResourceState.useEntityResource(entity, useComponent(entity, ObjectComponent) as any as State<ResourceAssetType>)
-  return null
-}
+export const ResourceStateSystem = defineSystem({
+  uuid: 'core.spatial.ResourceStateSystem',
+  insert: { after: PresentationSystemGroup },
+  reactor: () => {
+    useEffect(() => {
+      // @ts-ignore - @todo Object3D recursively nested property types causes issues here
+      const handle = ObjectComponent.defineObserver(
+        (entity) => {
+          const asset = getComponent(entity, ObjectComponent)
+          const resources = addEntityResource(entity, asset)
+          if (!resources.length) return
+          return () => {
+            for (const resource of resources) removeEntityResource(resource)
+          }
+        },
+        '',
+        Layers.Simulation
+      )
+      return () => {
+        ObjectComponent.removeObserver(handle)
+      }
+    })
+    return null
+  }
+})

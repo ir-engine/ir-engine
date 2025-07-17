@@ -61,7 +61,7 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
     !mesh.geometry.attributes.position ||
     mesh.geometry.boundsTree
   )
-    return Promise.resolve()
+    return
 
   const geometry = mesh.geometry as BufferGeometry
 
@@ -94,21 +94,22 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
   const { error, serialized, groups } = response.data
 
   if (error) {
-    return console.error(error)
-  } else {
-    if (groups) {
-      geometry.groups = []
-      for (const group of groups) {
-        geometry.addGroup(group.start, group.count, group.materialIndex)
-      }
-    }
-    const bvh = MeshBVH.deserialize(serialized, geometry, { setIndex: false })
-    geometry.setIndex(new BufferAttribute(serialized.index as TypedArray, 1, false))
-    geometry.boundingBox = bvh.getBoundingBox(new Box3())
-    geometry.boundsTree = bvh
-
-    return bvh
+    console.error(error)
+    return
   }
+
+  if (groups) {
+    geometry.groups = []
+    for (const group of groups) {
+      geometry.addGroup(group.start, group.count, group.materialIndex)
+    }
+  }
+  const bvh = MeshBVH.deserialize(serialized, geometry, { setIndex: false })
+  geometry.setIndex(new BufferAttribute(serialized.index as TypedArray, 1, false))
+  geometry.boundingBox = bvh.getBoundingBox(new Box3())
+  geometry.boundsTree = bvh
+
+  return bvh
 }
 
 type BVHWorkerResponse = {

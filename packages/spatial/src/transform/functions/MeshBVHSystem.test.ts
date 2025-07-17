@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { createEngine, createEntity, destroyEngine, setComponent, SystemDefinitions } from '@ir-engine/ecs'
 import { startReactor } from '@ir-engine/hyperflux'
+import { flushAll } from '@ir-engine/hyperflux/tests/utils/flushAll'
 import { BoxGeometry, MathUtils, Mesh, MeshBasicMaterial, Raycaster, Vector3 } from 'three'
 import { MeshBVH } from 'three-mesh-bvh'
 import { afterEach, assert, beforeEach, describe, it, vi } from 'vitest'
@@ -37,9 +38,11 @@ import { MeshBVHSystem } from './MeshBVHSystem'
 const meshBVHReactor = SystemDefinitions.get(MeshBVHSystem)!.reactor!
 
 describe('MeshBVHSystem', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     createEngine()
     mockSpatialEngine()
+    startReactor(meshBVHReactor)
+    await flushAll()
   })
 
   afterEach(() => {
@@ -63,8 +66,6 @@ describe('MeshBVHSystem', () => {
     const three = createEntity()
     setComponent(three, MeshComponent, box3)
 
-    startReactor(meshBVHReactor)
-
     const boxes = [box1, box2, box3]
 
     await vi.waitUntil(() => boxes.every((box) => box.geometry.boundsTree), { timeout: 10000 })
@@ -87,8 +88,6 @@ describe('MeshBVHSystem', () => {
     box.updateMatrixWorld()
     setComponent(one, TransformComponent, { position: new Vector3(randInt(), randInt(), randInt()) })
     setComponent(one, MeshComponent, box)
-
-    startReactor(meshBVHReactor)
 
     await vi.waitUntil(() => box.geometry.boundsTree, { timeout: 10000 })
 

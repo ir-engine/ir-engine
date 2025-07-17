@@ -1943,7 +1943,10 @@ describe('ShadowSystemFunctions', async () => {
         let dropShadowEntity = UndefinedEntity
         const center = new Vector3()
 
-        beforeEach(() => {
+        beforeEach(async () => {
+          startReactor(SystemDefinitions.get(MeshBVHSystem)!.reactor!)
+          await flushAll()
+
           const sceneEntityPosition = new Vector3(0, -1.5, 0)
           sceneEntity = createEntity() // shadowIntersectionEntity : Intersect against
           setComponent(sceneEntity, MeshComponent, new Mesh(new BoxGeometry()))
@@ -1978,7 +1981,6 @@ describe('ShadowSystemFunctions', async () => {
           const Initial = 42_000
 
           material!.opacity = Initial
-          startReactor(SystemDefinitions.get(MeshBVHSystem)!.reactor!)
           await vi.waitUntil(() => getComponent(sceneEntity, MeshComponent).geometry.boundsTree, { timeout: 10000 })
 
           ShadowSystemFunctions.updateDropShadowTransforms()
@@ -1996,7 +1998,6 @@ describe('ShadowSystemFunctions', async () => {
           const rayPos = TransformComponent.getWorldPosition(priorityEntity, new Vector3()).add(center)
           const raycaster = new Raycaster(rayPos, rayDir)
           const sceneObjects = [getComponent(sceneEntity, MeshComponent)]
-          startReactor(SystemDefinitions.get(MeshBVHSystem)!.reactor!)
           await vi.waitUntil(() => getComponent(sceneEntity, MeshComponent).geometry.boundsTree, { timeout: 10_000 })
           const intersected = raycaster.intersectObjects(sceneObjects, false)[0]
           Expected.setFromUnitVectors(intersected.face?.normal as any, Vector3_Back)
@@ -2014,7 +2015,6 @@ describe('ShadowSystemFunctions', async () => {
           const Initial = new Vector3(5, 6, 7)
 
           setComponent(dropShadowEntity, TransformComponent, { scale: Initial })
-          startReactor(SystemDefinitions.get(MeshBVHSystem)!.reactor!)
           await vi.waitUntil(() => getComponent(sceneEntity, MeshComponent).geometry.boundsTree, { timeout: 10_000 })
           ShadowSystemFunctions.updateDropShadowTransforms()
 
@@ -2028,7 +2028,6 @@ describe('ShadowSystemFunctions', async () => {
           const Initial = new Vector3(5, 6, 7)
 
           setComponent(dropShadowEntity, TransformComponent, { position: Initial })
-          startReactor(SystemDefinitions.get(MeshBVHSystem)!.reactor!)
           await vi.waitUntil(() => getComponent(sceneEntity, MeshComponent).geometry.boundsTree, { timeout: 10_000 })
           ShadowSystemFunctions.updateDropShadowTransforms()
 

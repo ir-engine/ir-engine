@@ -1151,7 +1151,7 @@ describe('setComponent', () => {
 
   /** @section ECS Layers specific tests */
   it('should call LayerFunctions.propagateLayer with (entity, component, args) as arguments', () => {
-    const TestComponent = defineComponent({ name: '123' })
+    const TestComponent = defineComponent({ name: '123', onSet(entity, component, json) {} })
     const testEntity = createEntity()
     const resultSpy = vi.spyOn(LayerFunctions, 'propagateLayer')
     // Run and Check the result

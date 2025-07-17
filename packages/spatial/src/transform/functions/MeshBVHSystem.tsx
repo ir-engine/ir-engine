@@ -37,7 +37,7 @@ import {
   SkinnedMesh,
   Vector3
 } from 'three'
-import { computeBoundsTree, disposeBoundsTree, MeshBVHHelper } from 'three-mesh-bvh'
+import { computeBoundsTree, disposeBoundsTree, MeshBVH, MeshBVHHelper } from 'three-mesh-bvh'
 
 import {
   createEntity,
@@ -47,10 +47,11 @@ import {
   QueryReactor,
   removeEntity,
   removeEntityNodeRecursively,
+  S,
   useEntityContext
 } from '@ir-engine/ecs'
-import { getComponent, Layers, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { getMutableState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { defineComponent, getComponent, Layers, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
@@ -156,30 +157,12 @@ SkinnedMesh.prototype.raycast = () => {}
 BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree
 BufferGeometry.prototype.computeBoundsTree = computeBoundsTree
 
+export const MeshBVHComponent = defineComponent({ name: 'MeshBVHComponent', schema: S.Type<MeshBVH>() })
+
 const MeshBVHReactor = () => {
   const entity = useEntityContext()
-  const bvhDebug = useHookstate(getMutableState(RendererState).bvhDebug)
-  const mesh = useComponent(entity, MeshComponent).get(NO_PROXY) as Mesh
-  const hasMeshBVH = useHookstate(false)
 
   useEffect(() => {
-    if (!ValidMeshForBVH(mesh)) return
-
-    const abortController = new AbortController()
-    generateMeshBVH(mesh!, abortController.signal).then(() => {
-      if (abortController.signal.aborted) return
-      hasMeshBVH.set(true)
-    })
-
-    return () => {
-      hasMeshBVH.set(false)
-      abortController.abort()
-    }
-  }, [mesh])
-
-  useEffect(() => {
-    if (!bvhDebug.value || !hasMeshBVH.value) return
-
     const mesh = getComponent(entity, MeshComponent)
 
     const edgeMaterial = new LineBasicMaterial({
@@ -211,16 +194,43 @@ const MeshBVHReactor = () => {
       meshBVHVisualizer.dispose()
       removeEntityNodeRecursively(helperEntity)
     }
-  }, [bvhDebug.value, hasMeshBVH.value])
+  }, [])
 
   return null
 }
+
 export const MeshBVHSystem = defineSystem({
   uuid: 'ee.engine.MeshBVHSystem',
   insert: { after: PresentationSystemGroup },
-  reactor: () => (
-    <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshBVHReactor} layer={Layers.Simulation} />
-  )
+  reactor: () => {
+    useEffect(() => {
+      // @ts-ignore - @todo Mesh recursively nested property types causes issues here
+      const handle = MeshComponent.defineObserver(
+        (entity) => {
+          const mesh = getComponent(entity, MeshComponent)
+          if (!ValidMeshForBVH(mesh)) return
+          const abortController = new AbortController()
+          generateMeshBVH(mesh, abortController.signal).then((bvh) => {
+            if (!bvh) return
+            setComponent(entity, MeshBVHComponent, bvh)
+          })
+          return () => {
+            abortController.abort()
+          }
+        },
+        '',
+        Layers.Simulation
+      )
+
+      return () => {
+        MeshComponent.removeObserver(handle)
+      }
+    })
+
+    const bvhDebug = useHookstate(getMutableState(RendererState).bvhDebug).value
+    if (!bvhDebug) return null
+    return <QueryReactor Components={[MeshBVHComponent]} ChildEntityReactor={MeshBVHReactor} />
+  }
 })
 
 /**

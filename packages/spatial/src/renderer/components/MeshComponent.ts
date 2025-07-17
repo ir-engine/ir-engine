@@ -36,8 +36,8 @@ export const MeshComponent = defineComponent({
   schema: S.Type<Mesh>({ required: true }),
 
   onSet(entity, component, json) {
-    setComponent(entity, ObjectComponent, json as Mesh)
     component.set(json as Mesh)
+    setComponent(entity, ObjectComponent, json as Mesh)
   },
 
   onRemove(entity, component) {

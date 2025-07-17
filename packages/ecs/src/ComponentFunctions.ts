@@ -36,6 +36,7 @@ import {
   DeepReadonly,
   HyperFlux,
   Identifiable,
+  NO_PROXY,
   NO_PROXY_STEALTH,
   Path,
   ReactorRoot,
@@ -198,6 +199,14 @@ export interface Component<
   storage?: StorageType
   stateMap: Record<Entity, State<ComponentType, Identifiable>>
   valueMap: Record<Entity, ComponentType>
+  observers: Map<string, Map<number, Observer<Component>>>
+  pendingUnobservers: Map<Entity, Map<number, Unobserver>>
+  defineObserver: <P extends ComponentPropertyPath<ComponentType>>(
+    observer: Observer<Component>,
+    path?: P,
+    layer?: LayerID
+  ) => number
+  removeObserver: (handle: number) => void
   errors: ErrorTypes[]
   storageSize: number
   __ComponentType: ComponentType
@@ -347,6 +356,58 @@ export const defineComponent = <
   Component.onRemove = () => {}
   Component.toJSON = (component: ComponentType) => {
     return validateComponentSchema(def as any, component) as JSON
+  }
+
+  Component.observers = new Map<string, Map<number, Observer<Component>>>()
+  Component.pendingUnobservers = new Map<Entity, Map<number, Unobserver>>()
+
+  let i = 0
+
+  /**
+   * @todo @warning currently observers are not feature complete, they do not handle nested paths correctly
+   *  (nested paths will not update when the parent is updated - this will be addressed in the future)
+   */
+  Component.defineObserver = <P extends ComponentPropertyPath<ComponentType>>(
+    observer: Observer<Component>,
+    path: P = '' as P,
+    layer: LayerID = Layers.Simulation
+  ) => {
+    const handle = i++
+
+    // store the last value to not observe data that haven't actually changed
+    const lastValueMap = new Map<Entity, ComponentPropertyFromPath<ComponentType, P>>()
+
+    const _observer = (entity: Entity, data: ComponentPropertyFromPath<ComponentType, P>) => {
+      if (LayerComponent.get(entity) !== layer) return
+      const lastValue = lastValueMap.get(entity)
+      if (lastValue && lastValue === data) return
+      if (Component.pendingUnobservers.has(entity) && Component.pendingUnobservers.get(entity)?.has(handle)) {
+        Component.pendingUnobservers.get(entity)?.get(handle)!()
+        Component.pendingUnobservers.get(entity)?.delete(handle)
+      }
+      const unobserver = observer(entity, data)
+      if (typeof unobserver == 'function') {
+        if (!Component.pendingUnobservers.has(entity))
+          Component.pendingUnobservers.set(entity, new Map<number, Unobserver>())
+        Component.pendingUnobservers.get(entity)?.set(handle, unobserver)
+      }
+    }
+    if (!Component.observers.has(path)) Component.observers.set(path, new Map<number, Observer<Component>>())
+    Component.observers.get(path)!.set(handle, _observer)
+    return handle
+  }
+
+  Component.removeObserver = (handle: number) => {
+    for (const [path, observer] of Component.observers.entries()) {
+      if (!observer.has(handle)) continue
+      for (const unobservers of Component.pendingUnobservers.values()) {
+        const unobserver = unobservers.get(handle)
+        unobserver?.()
+        unobservers.delete(handle)
+      }
+      observer.delete(handle)
+      if (observer.size === 0) Component.observers.delete(path)
+    }
   }
 
   Component.errors = []
@@ -503,10 +564,16 @@ const _getComponentState = <C extends Component>(entity: Entity, component: C) =
     component.stateMap[entity] = hookstate(
       none,
       extend(identifiable(id), () => ({
-        onSet: (s, d) => {
+        onSet: (state, d) => {
           const rootState = component.stateMap[entity]
           component.valueMap[entity] = rootState.promised ? undefined : rootState.get(NO_PROXY_STEALTH)
+          /** @todo this condition can be removed with the ECS hookstate refactor */
+          if (!bitECS.hasComponent(HyperFlux.store, entity, component)) return
           LayerFunctions.propagateLayer(entity, component)
+          const path = (d.path[0] as string) ?? ''
+          const observers = component.observers.get(path)
+          if (!observers) return
+          for (const observer of observers.values()) observer(entity, state.get(NO_PROXY))
         }
       }))
     ) as State<ComponentType<C>, Identifiable>
@@ -549,11 +616,11 @@ export const setComponent = <C extends Component>(
   const exists = hasComponent(entity, component)
 
   if (!exists) {
-    // we must call onSet before setting the component in the ECS, such that the propagation
+    // we must initalize state before setting the component in the ECS, such that the propagation
     // callback does not propagate data that may be required but not set yet
     state.set(createInitialComponentValue(entity, component))
-    component.onSet(entity, state, args)
     bitECS.addComponent(HyperFlux.store, entity, component)
+    component.onSet(entity, state, args)
   } else {
     component.onSet(entity, state, args)
   }
@@ -618,6 +685,11 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
     }
   }
 
+  const unobservers = component.pendingUnobservers.get(entity)
+  if (unobservers) {
+    for (const unobserver of unobservers.values()) unobserver()
+    component.pendingUnobservers.delete(entity)
+  }
   bitECS.removeComponent(HyperFlux.store, entity, component)
   component.onRemove(entity, component.stateMap[entity]!)
   component.stateMap[entity]?.set(none)
@@ -1557,3 +1629,7 @@ export const EntityContext = React.createContext(UndefinedEntity)
 export const useEntityContext = () => {
   return React.useContext(EntityContext)
 }
+
+export type Observer<C extends Component> = (entity: Entity, data: ComponentType<C>) => Unobserver | void
+export type Unobserver = () => void
+export type Cleanup = () => void

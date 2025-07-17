@@ -1399,9 +1399,9 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
 
   if (isSkinnedMesh) {
     const skinnedMesh = mesh as SkinnedMesh
-    skinnedMesh.skeleton = new Skeleton()
-    skinnedMesh.normalizeSkinWeights()
     setComponent(entity, SkinnedMeshComponent, skinnedMesh)
+  } else {
+    setComponent(entity, MeshComponent, mesh)
   }
 
   //handle primitive extensions
@@ -1412,7 +1412,6 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
   //   deserializeComponent(entity, Component, extensions[extensionName])
   // }
 
-  setComponent(entity, MeshComponent, mesh)
   setComponent(entity, NameComponent, node.name ?? meshDef.name ?? `Mesh-${meshIndex}`)
 
   setComponent(entity, MaterialInstanceComponent, {
@@ -1483,8 +1482,6 @@ const loadSkin = async (options: GLTFParserOptions, nodeEntity: Entity, nodeInde
 
   const skeleton = new Skeleton(bones, boneInverses)
   skinnedMesh.skeleton = skeleton
-  // Make sure skeleton is propagated to simulation layer
-  setComponent(skinnedMesh.entity, SkinnedMeshComponent, skinnedMesh)
 }
 
 const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {

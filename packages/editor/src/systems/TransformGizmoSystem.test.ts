@@ -33,6 +33,7 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getMutableState, startReactor } from '@ir-engine/hyperflux'
+import { flushAll } from '@ir-engine/hyperflux/tests/utils/flushAll'
 import { MeshBVHSystem, TransformComponent } from '@ir-engine/spatial'
 import { destroySpatialEngine, destroySpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
@@ -53,10 +54,12 @@ const meshBVHReactor = SystemDefinitions.get(MeshBVHSystem)!.reactor!
 
 describe('TransformGizmoSystem', () => {
   describe('editorInputHeuristic', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       createEngine()
       mockSpatialEngine()
       getMutableState(EngineState).isEditing.set(true)
+      startReactor(meshBVHReactor)
+      await flushAll()
     })
 
     afterEach(() => {
@@ -107,8 +110,6 @@ describe('TransformGizmoSystem', () => {
         const rayDirection = new Vector3(1, 1, 1).normalize()
 
         const data = new Set<IntersectionData>()
-
-        startReactor(meshBVHReactor)
 
         await vi.waitUntil(() => [box1, box2, box3].every((box) => box.geometry.boundsTree), { timeout: 10000 })
 
@@ -162,8 +163,6 @@ describe('TransformGizmoSystem', () => {
         const rayDirection = new Vector3(3, 3, 3).normalize()
 
         const data = new Set<IntersectionData>()
-
-        startReactor(meshBVHReactor)
 
         await vi.waitUntil(() => [box1, box2, box3].every((box) => box.geometry.boundsTree), { timeout: 10000 })
 

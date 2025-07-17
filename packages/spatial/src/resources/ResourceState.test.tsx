@@ -24,17 +24,20 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
+import { BoxGeometry, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 
-import { createEntity, removeEntity, setComponent, UndefinedEntity } from '@ir-engine/ecs'
+import { createEntity, removeEntity, setComponent, SystemDefinitions, UndefinedEntity } from '@ir-engine/ecs'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { getState } from '@ir-engine/hyperflux'
+import { getState, startReactor } from '@ir-engine/hyperflux'
+import { flushAll } from '@ir-engine/hyperflux/tests/utils/flushAll'
 import sinon from 'sinon'
 import { MeshComponent } from '../renderer/components/MeshComponent'
-import { ResourceState } from './ResourceState'
+import { ResourceState, ResourceStateSystem } from './ResourceState'
+
+const resourceStateSystemReactor = SystemDefinitions.get(ResourceStateSystem)!.reactor!
 
 describe('ResourceState', () => {
   describe('ResourceState state', () => {
@@ -44,6 +47,8 @@ describe('ResourceState', () => {
       beforeEach(async () => {
         createEngine()
         testEntity = createEntity()
+        startReactor(resourceStateSystemReactor)
+        await flushAll()
       })
 
       afterEach(() => {
@@ -51,9 +56,6 @@ describe('ResourceState', () => {
       })
 
       it('should track mesh in state', async () => {
-        // invoke state to start reactor
-        getState(ResourceState)
-
         const mesh = new Mesh(new SphereGeometry(), new MeshBasicMaterial())
 
         setComponent(testEntity, MeshComponent, mesh)
@@ -116,9 +118,6 @@ describe('ResourceState', () => {
       })
 
       it('should dispose when component unmounts', async () => {
-        // invoke state to start reactor
-        getState(ResourceState)
-
         const mesh = new Mesh(new SphereGeometry(), new MeshBasicMaterial())
         const spy = sinon.spy()
         mesh.geometry.dispose = spy
@@ -146,6 +145,35 @@ describe('ResourceState', () => {
         sinon.assert.calledTwice(spy)
 
         assert.equal(Object.keys(resources).length, 0)
+      })
+
+      it('should dispose and mount new asset upon component set', async () => {
+        const mesh = new Mesh(new SphereGeometry(), new MeshBasicMaterial())
+        const spy = sinon.spy()
+        mesh.geometry.dispose = spy
+        mesh.material.dispose = spy
+
+        setComponent(testEntity, MeshComponent, mesh)
+
+        await vi.waitUntil(() => {
+          // @ts-expect-error
+          const meshResourceID = mesh.resourceID
+          return getState(ResourceState).resources[meshResourceID]
+        })
+
+        sinon.assert.notCalled(spy)
+
+        const newMesh = new Mesh(new BoxGeometry(), new MeshBasicMaterial())
+
+        setComponent(testEntity, MeshComponent, newMesh)
+
+        const resource = await vi.waitUntil(() => {
+          // @ts-expect-error
+          const meshResourceID = newMesh.resourceID
+          return getState(ResourceState).resources[meshResourceID]
+        })
+
+        assert(resource)
       })
     })
   })

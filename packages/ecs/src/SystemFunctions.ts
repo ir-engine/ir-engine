@@ -28,7 +28,15 @@ Infinite Reality Engine. All Rights Reserved.
 import { FC } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
-import { getState, HyperFlux, OpaqueType, startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import {
+  getState,
+  HyperFlux,
+  OpaqueType,
+  ReactorReconciler,
+  startReactor,
+  useHookstate,
+  useImmediateEffect
+} from '@ir-engine/hyperflux'
 
 import { SystemState } from './SystemState'
 import { nowMilliseconds } from './Timer'
@@ -102,10 +110,11 @@ export function executeSystem(systemUUID: SystemUUID) {
     executeSystem(system.preSystems[i])
   }
 
-  /** @todo when we fully remove deprecated system reactors in favour of state reactors, we can just wrap system.execute with flushSync */
   if (system.reactor && !getState(SystemState).activeSystemReactors.has(system.uuid)) {
-    const reactor = startReactor(system.reactor, `System - ${system.uuid}`)
-    getState(SystemState).activeSystemReactors.set(system.uuid, reactor)
+    ReactorReconciler.flushSync(() => {
+      const reactor = startReactor(system.reactor!, `System - ${system.uuid}`)
+      getState(SystemState).activeSystemReactors.set(system.uuid, reactor)
+    })
   }
 
   const startTime = nowMilliseconds()
