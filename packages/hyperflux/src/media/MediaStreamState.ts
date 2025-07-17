@@ -55,7 +55,7 @@ export const MediaStreamState = defineState({
     /** Whether the audio is enabled or not. */
     microphoneEnabled: false,
     /** Whether the face tracking is enabled or not. */
-    /** @deprecated face tracking has been disabled */
+    /** @deprecated - face tracking has been disabled */
     faceTracking: false,
     /** Video stream for streaming data. */
     webcamMediaStream: null as MediaStream | null,
@@ -295,6 +295,31 @@ export const MediaStreamService = {
       return false
     }
     console.log('Cycle camera')
+
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+    const currentStream = state.webcamMediaStream.value
+    const currentTrack = currentStream.getVideoTracks()[0]
+    const currentFacingMode = currentTrack.getSettings().facingMode || 'environment'
+
+    currentStream.getTracks().forEach((track) => track.stop())
+
+    /**
+     * in mobile devices, switching between cameras could mean going from different lens (in different
+     * zoom levels) instead of actual different, cameras, so we look for the facing mode here
+     * (forward & back facing)
+     */
+    if (isMobile) {
+      const newFacingMode = currentFacingMode === 'user' ? 'environment' : 'user'
+      try {
+        const newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: newFacingMode } } })
+        state.webcamMediaStream.set(newStream)
+        return true
+      } catch (e) {
+        console.error('Unable to switch camera mode.', e)
+        return false
+      }
+    }
+
     // find "next" device in device list
     const deviceId = await MediaStreamService.getCurrentDeviceId('video')
     const allDevices = await navigator.mediaDevices.enumerateDevices()
