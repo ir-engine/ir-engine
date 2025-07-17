@@ -86,6 +86,7 @@ import { ErrorComponent } from '../scene/components/ErrorComponent'
 import { SceneDynamicLoadComponent } from '../scene/components/SceneDynamicLoadComponent'
 import { addError, removeError } from '../scene/functions/ErrorFunctions'
 import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
+import { GLTFMigration } from './GLTFMigration'
 import { AssetState } from './GLTFState'
 import { migrateEEMaterial } from './migrateEEMaterial'
 import { OVERRIDE_EXTENSION_NAME } from './overrideExporterExtension'
@@ -540,6 +541,7 @@ const useGLTFDocument = (entity: Entity) => {
         const [gltf, body] = parseGLTFFile(response, onError)
 
         if (gltf) {
+          GLTFMigration.migrate(gltf)
           state.document.set(gltf)
           const dependencies = buildDependencies(entity, gltf)
           state.dependencies.set(dependencies)
