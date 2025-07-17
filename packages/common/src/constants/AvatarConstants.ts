@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export const AVATAR_FILE_ALLOWED_EXTENSIONS = '.glb,.gltf,.vrm,.fbx'
+export const AVATAR_FILE_ALLOWED_EXTENSIONS = '.glb,.gltf,.vrm'
 export const MIN_AVATAR_FILE_SIZE = 0
 export const MAX_AVATAR_FILE_SIZE = 15728640 * 10 // 150 MB
 export const MIN_THUMBNAIL_FILE_SIZE = 0

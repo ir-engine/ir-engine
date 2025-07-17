@@ -49,7 +49,7 @@ import {
   ModelFileTypes,
   VideoFileTypes,
   VolumetricFileTypes
-} from '@ir-engine/engine/src/assets/constants/fileTypes'
+} from '@ir-engine/spatial/src/resources/fileTypes'
 
 import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'

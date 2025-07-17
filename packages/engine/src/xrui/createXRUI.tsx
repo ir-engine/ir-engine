@@ -34,7 +34,6 @@ import { State, getState, isClient } from '@ir-engine/hyperflux'
 import { WebContainer3D } from '@ir-engine/xrui/core/three/WebContainer3D'
 import { WebLayerManager } from '@ir-engine/xrui/core/three/WebLayerManager'
 
-import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
@@ -45,6 +44,7 @@ import {
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { KTX2LoaderState } from '@ir-engine/spatial/src/resources/loaders/ktx2/KTX2LoaderState'
 import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
@@ -77,7 +77,7 @@ export function createXRUI<S extends State<any> | null>(
   if (!WebLayerManager.instance) {
     const viewerEntity = getState(ReferenceSpaceState).viewerEntity
     const renderer = getComponent(viewerEntity, RendererComponent)
-    const ktx2Loader = getState(AssetLoaderState).ktx2Loader
+    const ktx2Loader = getState(KTX2LoaderState)
     WebLayerManager.initialize(renderer.renderer!, ktx2Loader!)
   }
 

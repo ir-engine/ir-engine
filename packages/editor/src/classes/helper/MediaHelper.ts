@@ -24,9 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useOptionalComponent } from '@ir-engine/ecs'
-import { useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { useHelperEntity } from '@ir-engine/spatial/src/helper/functions/useHelperEntity'
+import { useTexture } from '@ir-engine/spatial/src/resources/resourceLoaderHooks'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
 const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'

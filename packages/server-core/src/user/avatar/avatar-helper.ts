@@ -117,7 +117,7 @@ export type AvatarUploadArguments = {
 }
 
 // todo: move this somewhere else
-export const supportedAvatars = ['glb', 'gltf', 'vrm', 'fbx']
+export const supportedAvatars = ['glb', 'gltf', 'vrm']
 const projectsPath = path.join(appRootPath.path, '/packages/projects/')
 
 /**

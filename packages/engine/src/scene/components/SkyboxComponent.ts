@@ -50,8 +50,8 @@ import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { useTexture } from '@ir-engine/spatial/src/resources/resourceLoaderHooks'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
-import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'

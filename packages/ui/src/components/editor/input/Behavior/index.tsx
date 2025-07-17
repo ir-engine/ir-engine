@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getTextureAsync } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import {
   ApplyForceBehaviorJSON,
   ApplySequencesJSON,
@@ -49,6 +48,7 @@ import {
 } from '@ir-engine/engine/src/scene/types/ParticleSystemTypes'
 import { State } from '@ir-engine/hyperflux'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
+import { getTextureAsync } from '@ir-engine/spatial/src/resources/resourceLoaderHooks'
 import { Checkbox } from '@ir-engine/ui'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'

@@ -34,8 +34,8 @@ import {
   SourceID,
   UUIDComponent
 } from '@ir-engine/ecs'
+import { overrideFileLoaderLoad } from '@ir-engine/spatial/tests/util/overrideAssetLoaders'
 import { afterEach, assert, beforeEach, describe, it, vi } from 'vitest'
-import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 
 import { createTestGLTFEntity, rings_gltf } from '../../../tests/avatar/mockAnimatedAvatar'
 import { startEngineReactor } from '../../../tests/startEngineReactor'

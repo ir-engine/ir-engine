@@ -31,7 +31,7 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
-import { useGLTFComponent } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
+import { useGLTFComponent } from '@ir-engine/engine/src/assets/functions/useGLTFComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/SpatialModule'

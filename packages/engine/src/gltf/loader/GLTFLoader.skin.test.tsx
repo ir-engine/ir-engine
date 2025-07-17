@@ -42,9 +42,9 @@ import {
 } from '@ir-engine/ecs'
 import { flushAll } from '@ir-engine/hyperflux/tests/utils/flushAll'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
+import { overrideFileLoaderLoad } from '@ir-engine/spatial/tests/util/overrideAssetLoaders'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { startEngineReactor } from '../../../tests/startEngineReactor'
-import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { mockGLTFOptions } from '../../../tests/util/mockGLTF'
 import { DependencyCache, GLTFLoaderFunctions } from '../GLTFLoaderFunctions'
 

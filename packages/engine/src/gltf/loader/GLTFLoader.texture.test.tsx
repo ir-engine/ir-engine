@@ -32,8 +32,8 @@ import { createEngine, destroyEngine } from '@ir-engine/ecs'
 import { LinearFilter, LinearMipmapLinearFilter, RepeatWrapping, Texture } from 'three'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { overrideFileLoaderLoad, overrideTextureLoaderLoad } from '@ir-engine/spatial/tests/util/overrideAssetLoaders'
 import { startEngineReactor } from '../../../tests/startEngineReactor'
-import { overrideFileLoaderLoad, overrideTextureLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { mockGLTF, mockGLTFOptions } from '../../../tests/util/mockGLTF'
 import { GLTFLoaderFunctions } from '../GLTFLoaderFunctions'
 

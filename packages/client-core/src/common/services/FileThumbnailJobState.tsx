@@ -73,7 +73,7 @@ import { useFind } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { getChildrenWithComponents } from '@ir-engine/ecs'
 import { uploadProjectFiles } from '@ir-engine/editor/src/functions/assetFunctions'
-import { useGLTFComponent, useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
+import { useGLTFComponent } from '@ir-engine/engine/src/assets/functions/useGLTFComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
@@ -88,6 +88,7 @@ import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/Re
 import { BackgroundComponent, SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { useTexture } from '@ir-engine/spatial/src/resources/resourceLoaderHooks'
 import { createHash } from 'crypto'
 import mime from 'mime-types'
 import { uploadToFeathersService } from '../../util/upload'
@@ -436,7 +437,7 @@ type ThumbnailFileType = 'image' | 'model' | 'texture' | 'video' | 'material' | 
 const extensionThumbnailTypes: { extensions: string[]; thumbnailType: ThumbnailFileType }[] = [
   { extensions: ['material.gltf'], thumbnailType: 'material' },
   { extensions: ['lookdev.gltf'], thumbnailType: 'lookDev' },
-  { extensions: ['gltf', 'glb', 'vrm', 'usdz', 'fbx'], thumbnailType: 'model' },
+  { extensions: ['gltf', 'glb', 'vrm'], thumbnailType: 'model' },
   { extensions: ['png', 'jpeg', 'jpg'], thumbnailType: 'image' },
   { extensions: ['ktx2'], thumbnailType: 'texture' },
   { extensions: ['mp4', 'm3u8'], thumbnailType: 'video' }

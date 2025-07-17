@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
-import { ModelFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
+import { ModelFileTypes } from '@ir-engine/spatial/src/resources/fileTypes'
 import React from 'react'
 import FileBrowserInput from '../FileBrowser'
 import { StringInputProps } from '../String'

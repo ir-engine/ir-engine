@@ -77,8 +77,8 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { useTexture } from '../../assets/functions/resourceLoaderHooks'
-import { DomainConfigState } from '../../assets/state/DomainConfigState'
+import { DomainConfigState } from '@ir-engine/spatial/src/resources/DomainConfigState'
+import { useTexture } from '@ir-engine/spatial/src/resources/resourceLoaderHooks'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
 import { PortalComponent, PortalEffects, PortalState } from './PortalComponent'

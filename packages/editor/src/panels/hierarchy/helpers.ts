@@ -24,8 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { Entity, EntityTreeComponent, getOptionalComponent, Layers, UUIDComponent } from '@ir-engine/ecs'
-import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { AuthoringState } from '@ir-engine/engine/src/authoring/AuthoringState'
+import { AllFileTypes } from '@ir-engine/spatial/src/resources/fileTypes'
 
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getState } from '@ir-engine/hyperflux'

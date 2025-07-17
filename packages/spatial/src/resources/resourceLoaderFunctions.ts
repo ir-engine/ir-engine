@@ -25,12 +25,20 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Entity } from '@ir-engine/ecs'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
-import { ResourceAssetType, ResourceState, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
+import { ResourceAssetType, ResourceState, ResourceType } from './ResourceState'
 
-import { ResourceProgressComponent } from '../../gltf/ResourceProgressComponent'
-import { AssetLoader } from '../classes/AssetLoader'
-import { Loader } from '../loaders/base/Loader'
-import { ResourceCacheState, ResourceStatus } from '../state/ResourceCacheState'
+import { AudioLoader } from 'three'
+// import { ResourceProgressComponent } from '../../gltf/ResourceProgressComponent'
+import { AssetExt, FileToAssetExt } from './AssetType'
+import { DomainConfigState } from './DomainConfigState'
+import { FileLoader } from './loaders/base/FileLoader'
+import { Loader } from './loaders/base/Loader'
+import { KTX2LoaderState } from './loaders/ktx2/KTX2LoaderState'
+import { TextureLoader } from './loaders/texture/TextureLoader'
+import { TGALoader } from './loaders/tga/TGALoader'
+import { ResourceCacheState, ResourceStatus } from './ResourceCacheState'
+import { ResourceProgressComponent } from './ResourceProgressComponent'
+
 interface Cloneable<T> {
   clone?: () => T
 }
@@ -55,6 +63,39 @@ const cloneAsset = <T>(asset: Cloneable<T> | undefined, onLoad: (T) => void): bo
   }
 
   return false
+}
+
+/**
+ * Matches absolute URLs. For eg: `http://example.com`, `https://example.com`, `ftp://example.com`, `//example.com`, etc.
+ * This Does NOT match relative URLs like `example.com`
+ */
+export const ABSOLUTE_URL_PROTOCOL_REGEX = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/
+
+export const isAbsolutePath = (path) => {
+  return ABSOLUTE_URL_PROTOCOL_REGEX.test(path)
+}
+
+export const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : getState(DomainConfigState).publicDomain + url)
+
+export const getLoader = (assetType: AssetExt): Loader => {
+  switch (assetType) {
+    case AssetExt.KTX2:
+      return getState(KTX2LoaderState) as any as Loader
+    case AssetExt.TGA:
+      return new TGALoader()
+    case AssetExt.PNG:
+    case AssetExt.JPEG:
+    case AssetExt.GIF:
+    case AssetExt.WEBP:
+      return new TextureLoader()
+    case AssetExt.AAC:
+    case AssetExt.MP3:
+    case AssetExt.OGG:
+    case AssetExt.M4A:
+      return new AudioLoader() as any as Loader
+    default:
+      return new FileLoader()
+  }
 }
 
 export const loadResource = <T extends ResourceAssetType>(
@@ -113,8 +154,15 @@ export const loadResource = <T extends ResourceAssetType>(
 
   const resource = resourceCacheState[url]
   ResourceState.debugLog(`ResourceState:load Loading resource: ${url} for entity: ${entity}`)
-  AssetLoader.loadAsset<T>(
-    url,
+  const absoluteURL = getAbsolutePath(url)
+
+  if (!loader) {
+    const assetExt = FileToAssetExt(url)!
+    loader = getLoader(assetExt)
+  }
+
+  loader.load(
+    absoluteURL,
     (response: T) => {
       if (!resource || !resource.value) {
         console.warn(`ResourceState:load Resource removed before load finished: ${url} for entity: ${entity}`)
@@ -149,7 +197,7 @@ export const loadResource = <T extends ResourceAssetType>(
       if (entity) ResourceProgressComponent.setResource(entity, url, request.loaded, request.total)
       onProgress(request)
     },
-    (error) => {
+    (error: ErrorEvent | Error) => {
       console.warn(`ResourceState:load error loading ${resourceType} at url ${url} for entity ${entity}`, error)
       if (resource && resource.value) {
         resource.status.set(ResourceStatus.Error)
@@ -157,8 +205,7 @@ export const loadResource = <T extends ResourceAssetType>(
       if (entity) ResourceProgressComponent.removeResource(entity, url)
       onError(error)
     },
-    signal,
-    loader
+    signal
   )
 }
 

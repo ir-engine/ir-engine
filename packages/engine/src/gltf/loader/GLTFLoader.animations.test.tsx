@@ -28,10 +28,10 @@ Infinite Reality Engine. All Rights Reserved.
  * Unit Test suite for loading the `glTF.animations` root property and all its children.
  * Based on glTF 2.0 specification requirements.
  * */
+import { overrideFileLoaderLoad } from '@ir-engine/spatial/tests/util/overrideAssetLoaders'
 import { act, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { startEngineReactor } from '../../../tests/startEngineReactor'
-import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 
 import { createEngine, destroyEngine } from '@ir-engine/ecs'
 import { AnimationClip, InterpolateLinear } from 'three'

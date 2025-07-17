@@ -27,7 +27,7 @@ import {
   Uint32BufferAttribute,
   Uint8BufferAttribute
 } from 'three'
-import { FileLoader } from '../base/FileLoader'
+import { FileLoader } from '@ir-engine/spatial/src/resources/loaders/base/FileLoader'
 
 import draco from 'draco3dgltf'
 

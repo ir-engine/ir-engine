@@ -62,6 +62,13 @@ import {
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { setupMaterialParameters } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { FileLoader } from '@ir-engine/spatial/src/resources/loaders/base/FileLoader'
+import { Loader } from '@ir-engine/spatial/src/resources/loaders/base/Loader'
+import { ResourceCache, extractHashFromURL } from '@ir-engine/spatial/src/resources/loaders/base/ResourceCache'
+import { KTX2LoaderState } from '@ir-engine/spatial/src/resources/loaders/ktx2/KTX2LoaderState'
+import { TextureLoader } from '@ir-engine/spatial/src/resources/loaders/texture/TextureLoader'
+import { ResourceCacheState } from '@ir-engine/spatial/src/resources/ResourceCacheState'
+import { loadResource, unloadResource } from '@ir-engine/spatial/src/resources/resourceLoaderFunctions'
 import { ResourceState, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import {
@@ -104,13 +111,6 @@ import {
   Vector3,
   VectorKeyframeTrack
 } from 'three'
-import { loadResource, unloadResource } from '../assets/functions/resourceLoaderFunctions'
-import { FileLoader } from '../assets/loaders/base/FileLoader'
-import { Loader } from '../assets/loaders/base/Loader'
-import { ResourceCache, extractHashFromURL } from '../assets/loaders/base/ResourceCache'
-import { TextureLoader } from '../assets/loaders/texture/TextureLoader'
-import { AssetLoaderState } from '../assets/state/AssetLoaderState'
-import { ResourceCacheState } from '../assets/state/ResourceCacheState'
 import { AuthoringActions } from '../authoring/AuthoringState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { GLTFComponent } from './GLTFComponent'
@@ -1062,7 +1062,7 @@ const loadTexture = (options: GLTFParserOptions, textureIndex: number) => {
   const handler = typeof sourceDef?.uri === 'string' && options.manager.getHandler(sourceDef.uri)
   let loader: Loader<unknown, string>
 
-  if (basisu) loader = getState(AssetLoaderState).ktx2Loader as unknown as Loader
+  if (basisu) loader = getState(KTX2LoaderState) as unknown as Loader
   else if (handler) loader = handler as Loader<unknown, string>
   else {
     const textureLoader = new TextureLoader(undefined, undefined, false)
@@ -1728,8 +1728,8 @@ const unloadScene = (url: string, entity: Entity) => {
   const resourceCacheState = getState(ResourceCacheState)
   if (!resourceCacheState[url]) {
     delete interleavedBufferCache[url]
-    DependencyCache.delete(`${entity}${url}`)
   }
+  DependencyCache.delete(`${entity}${url}`)
 }
 
 const unloadEntities = (sourceID: SourceID, layer: LayerID) => {

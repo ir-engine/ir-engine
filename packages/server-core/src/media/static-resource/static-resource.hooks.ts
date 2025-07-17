@@ -28,7 +28,7 @@ import { projectHistoryPath, projectPath } from '@ir-engine/common/src/schema.ty
 import { staticResourceVectorPath } from '@ir-engine/common/src/schemas/media/static-resource-vector.schema'
 import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
 import { isValidId } from '@ir-engine/common/src/utils/isValidId'
-import { AssetType, FileToAssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
+import { AssetType, FileToAssetType } from '@ir-engine/spatial/src/resources/AssetType'
 import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import { isEmpty } from 'lodash'
 import { HookContext } from '../../../declarations'

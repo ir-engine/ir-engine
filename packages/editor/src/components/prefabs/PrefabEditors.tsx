@@ -20,8 +20,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schema.type.module'
-import { useFile } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { defineState, getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { useFile } from '@ir-engine/spatial/src/resources/resourceLoaderHooks'
 import React, { useEffect } from 'react'
 
 import { IoCubeOutline } from 'react-icons/io5'

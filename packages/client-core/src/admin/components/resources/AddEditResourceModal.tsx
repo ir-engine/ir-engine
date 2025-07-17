@@ -30,12 +30,12 @@ import { ModalState } from '@ir-engine/client-core/src/common/services/ModalStat
 import { StaticResourceType, uploadAssetPath } from '@ir-engine/common/src/schema.type.module'
 import { cleanURL } from '@ir-engine/common/src/utils/cleanURL'
 import { AssetsPreviewPanel } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
+import { useHookstate } from '@ir-engine/hyperflux'
 import {
   AssetTypeToMimeType,
   ExtensionToAssetType,
   MimeTypeToAssetType
-} from '@ir-engine/engine/src/assets/constants/fileTypes'
-import { useHookstate } from '@ir-engine/hyperflux'
+} from '@ir-engine/spatial/src/resources/fileTypes'
 import { Button, Input, RadioGroup } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 

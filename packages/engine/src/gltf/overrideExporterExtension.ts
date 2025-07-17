@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { hasComponent, iterateEntityNode, UUIDComponent } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
-import { cleanStorageProviderURLs } from '../assets/functions/parseSceneJSON'
+import { cleanStorageProviderURLs } from '@ir-engine/spatial/src/resources/parseSceneJSON'
 import { AuthoringState } from '../authoring/AuthoringState'
 import { GLTFSceneExportExtension } from './exportGLTFScene'
 

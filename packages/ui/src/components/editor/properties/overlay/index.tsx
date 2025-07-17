@@ -33,7 +33,6 @@ import { commitProperty, EditorComponentType, updateProperty } from '@ir-engine/
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { ImageFileTypes, VideoFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import {
   InteractableComponent,
   XRUIActivationType
@@ -41,6 +40,7 @@ import {
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { getState } from '@ir-engine/hyperflux'
+import { ImageFileTypes, VideoFileTypes } from '@ir-engine/spatial/src/resources/fileTypes'
 import { BrowserSm } from '../../../../icons'
 import FileBrowserInput from '../../input/FileBrowser'
 import InputGroup from '../../input/Group'

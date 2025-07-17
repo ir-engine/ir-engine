@@ -33,8 +33,7 @@ import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { getState, startReactor, useHookstate } from '@ir-engine/hyperflux'
 import { ResourceState } from '@ir-engine/spatial/src/resources/ResourceState'
 
-import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
-import { overrideFileLoaderLoad, overrideTextureLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
+import { overrideFileLoaderLoad, overrideTextureLoaderLoad } from '../../tests/util/overrideAssetLoaders'
 import { useTexture } from './resourceLoaderHooks'
 
 describe.skip('ResourceLoaderHooks', () => {
@@ -48,7 +47,6 @@ describe.skip('ResourceLoaderHooks', () => {
 
   beforeEach(async () => {
     createEngine()
-    loadEmptyScene()
   })
 
   afterEach(() => {

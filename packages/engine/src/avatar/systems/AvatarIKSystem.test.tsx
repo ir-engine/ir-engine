@@ -46,11 +46,11 @@ import {
   TransformDirtyUpdateSystem,
   TransformSystem
 } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { overrideFileLoaderLoad } from '@ir-engine/spatial/tests/util/overrideAssetLoaders'
 import { Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockAnimatedAvatar } from '../../../tests/avatar/mockAnimatedAvatar'
 import { startEngineReactor } from '../../../tests/startEngineReactor'
-import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarIKComponent, AvatarIKTargetComponent, IKMatrixComponent } from '../components/AvatarIKComponents'
 import '../state/AvatarIKTargetState'

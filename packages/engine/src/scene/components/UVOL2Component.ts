@@ -68,9 +68,9 @@ import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { AssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { getLoader } from '../../assets/classes/AssetLoader'
+import { AssetExt } from '@ir-engine/spatial/src/resources/AssetType'
+import { getLoader } from '@ir-engine/spatial/src/resources/resourceLoaderFunctions'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
 import { AssetState } from '../../gltf/GLTFState'

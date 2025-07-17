@@ -37,8 +37,8 @@ import {
 import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
 import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
 import { cleanFileNameFile } from '@ir-engine/common/src/utils/cleanFileName'
-import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
+import { FileToAssetExt } from '@ir-engine/spatial/src/resources/AssetType'
 import React, { ReactNode, createContext, useContext, useEffect, useMemo } from 'react'
 import { DnDFileType, FileDataType } from '../../constants/AssetTypes'
 import { filterExistingFiles, handleUploadFiles, validatedFiles } from '../../functions/assetFunctions'
@@ -303,7 +303,7 @@ export function useFileBrowserDrop() {
       await Promise.all(
         data.files.map(async (file) => {
           file = cleanFileNameFile(file)
-          const assetType = !file.type || file.type.length === 0 ? AssetLoader.getAssetType(file.name) : file.type
+          const assetType = !file.type || file.type.length === 0 ? FileToAssetExt(file.name) : file.type
           if (!assetType || assetType === file.name) {
             await fileService.create(`${destinationPath}${file.name}`)
           } else {

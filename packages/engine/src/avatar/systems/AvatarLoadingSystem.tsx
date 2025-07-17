@@ -36,8 +36,8 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { useTexture } from '@ir-engine/spatial/src/resources/resourceLoaderHooks'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
-import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { AnimationState } from '../AnimationManager'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'

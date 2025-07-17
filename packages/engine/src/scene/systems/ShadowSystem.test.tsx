@@ -71,6 +71,9 @@ import { CSMPluginComponent } from '@ir-engine/spatial/src/renderer/csm/CSMPlugi
 import { getShadowsEnabled } from '@ir-engine/spatial/src/renderer/functions/RenderSettingsFunction'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { DomainConfigState } from '@ir-engine/spatial/src/resources/DomainConfigState'
+import { KTX2LoaderState } from '@ir-engine/spatial/src/resources/loaders/ktx2/KTX2LoaderState'
+import { getTextureAsync } from '@ir-engine/spatial/src/resources/resourceLoaderHooks'
 import { XRLightProbeState } from '@ir-engine/spatial/src/xr/XRLightProbeSystem'
 import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
 import { act, render } from '@testing-library/react'
@@ -88,9 +91,6 @@ import {
   Vector2,
   Vector3
 } from 'three'
-import { getTextureAsync } from '../../assets/functions/resourceLoaderHooks'
-import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
-import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -1683,7 +1683,7 @@ describe('ShadowSystem', async () => {
       createEngine()
       mockSpatialEngine()
       testEntity = createEntity()
-      getMutableState(AssetLoaderState).ktx2Loader.set({
+      getMutableState(KTX2LoaderState).set({
         load: (url, onLoad) => {
           onLoad(new Texture())
         }

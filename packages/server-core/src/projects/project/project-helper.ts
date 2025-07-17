@@ -50,7 +50,7 @@ import {
   NPM_GIT_REFERENCE,
   PUBLIC_SIGNED_REGEX
 } from '@ir-engine/common/src/regex'
-import { AssetType, FileToAssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
+import { AssetType, FileToAssetType } from '@ir-engine/spatial/src/resources/AssetType'
 
 import { ManifestJson } from '@ir-engine/common/src/interfaces/ManifestJson'
 import { ProjectPackageJsonType } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'

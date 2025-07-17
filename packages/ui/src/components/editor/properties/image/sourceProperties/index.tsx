@@ -32,7 +32,7 @@ import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComp
 
 import { useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
-import { AssetExt, FileToAssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
+import { AssetExt, FileToAssetExt } from '@ir-engine/spatial/src/resources/AssetType'
 import InputGroup from '../../../input/Group'
 import SelectInput from '../../../input/Select'
 import Slider from '../../../Slider'

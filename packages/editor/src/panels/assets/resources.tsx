@@ -28,8 +28,8 @@ import useLoadingThumbnails from '@ir-engine/client-core/src/hooks/useLoadingThu
 import ProgressBar from '@ir-engine/client-core/src/systems/ui/LoadingDetailView/SimpleProgressBar'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
-import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { FileToAssetExt, FileToAssetType } from '@ir-engine/spatial/src/resources/AssetType'
 import { Button, Tooltip } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import InfiniteScroll from '@ir-engine/ui/src/components/tailwind/InfiniteScroll'
@@ -87,7 +87,7 @@ function ResourceFileContextMenu({
   const splitResourceKey = resource.key.split('/')
   const name = resource.name || splitResourceKey.at(-1)!
   const path = splitResourceKey.slice(0, -1).join('/') + '/'
-  const assetType = AssetLoader.getAssetType(resource.key)
+  const assetType = FileToAssetType(resource.key)
 
   return (
     <ContextMenu
@@ -219,7 +219,7 @@ function ResourceFile({
 }) {
   const anchorEvent = useHookstate<React.MouseEvent | undefined>(undefined)
 
-  const assetType = AssetLoader.getAssetType(resource.key)
+  const assetType = FileToAssetExt(resource.key)!
   const name = resource.name || resource.key.split('/').at(-1)!
 
   const [_, drag, preview] = useDrag(() => ({

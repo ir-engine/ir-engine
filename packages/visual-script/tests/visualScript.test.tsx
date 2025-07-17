@@ -40,7 +40,6 @@ import {
   SystemDefinitions
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import {
   getOnAsyncExecuteSystemUUID,
   getOnExecuteSystemUUID,
@@ -51,6 +50,7 @@ import {
   VisualScriptDomain
 } from '@ir-engine/engine/src/visualscript/VisualScriptModule'
 import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
+import { parseStorageProviderURLs } from '@ir-engine/spatial/src/resources/parseSceneJSON'
 
 import { GraphJSON, VisualScriptState } from '../src/VisualScriptModule'
 import booleanTestVisualScript from './assets/boolean-test-visual-script.json'

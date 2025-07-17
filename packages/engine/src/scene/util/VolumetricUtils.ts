@@ -28,6 +28,7 @@ import { ImmutableArray, State, getState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
+import { KTX2LoaderState } from '@ir-engine/spatial/src/resources/loaders/ktx2/KTX2LoaderState'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import {
   BufferGeometry,
@@ -210,7 +211,7 @@ export const loadGLTF = (url: string) => {
 }
 
 export const loadKTX2 = (url: string, _repeat?: Vector2, _offset?: Vector2) => {
-  const ktx2Loader = getState(AssetLoaderState).ktx2Loader
+  const ktx2Loader = getState(KTX2LoaderState)
   if (!ktx2Loader) {
     throw new Error('loadKTX2:KTX2Loader is not available')
   }

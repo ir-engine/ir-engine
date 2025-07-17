@@ -43,11 +43,12 @@ import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spati
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
+import { FileToAssetType } from '@ir-engine/spatial/src/resources/AssetType'
+import { getAbsolutePath } from '@ir-engine/spatial/src/resources/resourceLoaderFunctions'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponent'
 import type Hls from 'hls.js'
 import { useEffect, useLayoutEffect } from 'react'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AudioState } from '../../audio/AudioState'
 import { removePannerNode } from '../../audio/PositionalAudioFunctions'
 import { PlayMode } from '../constants/PlayMode'
@@ -222,7 +223,7 @@ export function MediaReactor() {
       return
     }
 
-    const urlToPlay = encodeURI(AssetLoader.getAbsolutePath(path))
+    const urlToPlay = encodeURI(getAbsolutePath(path))
 
     const checkMediaElement = getOptionalComponent(entity, MediaElementComponent)
     /** do nothing if we are already playing this track */
@@ -230,7 +231,7 @@ export function MediaReactor() {
       return
     }
 
-    const assetClass = AssetLoader.getAssetClass(urlToPlay).toLowerCase()
+    const assetClass = FileToAssetType(urlToPlay).toLowerCase()
 
     if (assetClass !== 'audio' && assetClass !== 'video') {
       addError(entity, MediaComponent, 'UNSUPPORTED_ASSET_CLASS')
@@ -456,7 +457,7 @@ export function MediaReactor() {
       }
 
       for (const path of paths) {
-        const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
+        const assetClass = FileToAssetType(path).toLowerCase()
         if (path !== '' && assetClass !== 'audio' && assetClass !== 'video') {
           return addError(entity, MediaComponent, 'UNSUPPORTED_ASSET_CLASS')
         }
@@ -555,7 +556,7 @@ const setUpMediaElement = (
     soundEffects: GainNode
   }
 ) => {
-  const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
+  const assetClass = FileToAssetType(path).toLowerCase()
 
   const hasMediaElementComponent = hasComponent(entity, MediaElementComponent)
   let element: HTMLMediaElement | null = null

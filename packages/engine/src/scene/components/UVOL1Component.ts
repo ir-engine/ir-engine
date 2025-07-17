@@ -58,9 +58,9 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/components/RendererComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { DomainConfigState } from '@ir-engine/spatial/src/resources/DomainConfigState'
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
-import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { AudioState } from '../../audio/AudioState'
 import { handleAutoplay, LegacyVolumetricComponent } from './LegacyVolumetricComponent'
 import { MediaElementComponent } from './MediaComponent'

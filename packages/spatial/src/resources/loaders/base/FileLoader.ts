@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Cache, LoadingManager } from 'three'
 
-import { parseStorageProviderURLs } from '../../functions/parseSceneJSON'
+import { parseStorageProviderURLs } from '../../parseSceneJSON'
 import { Loader } from './Loader'
 import { ResourceCache } from './ResourceCache'
 

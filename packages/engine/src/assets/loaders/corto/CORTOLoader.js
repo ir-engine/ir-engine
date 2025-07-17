@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 
 import { BufferAttribute, BufferGeometry } from 'three'
-import { FileLoader } from "../base/FileLoader"
+import { FileLoader } from '@ir-engine/spatial/src/resources/loaders/base/FileLoader'
 
 class CORTOLoader {
   constructor() {

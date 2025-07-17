@@ -45,7 +45,7 @@ import { pipe } from '@ir-engine/common/src/utils/pipe'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { createHyperStore, getMutableState } from '@ir-engine/hyperflux'
 
-import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
+import { DomainConfigState } from '@ir-engine/spatial/src/resources/DomainConfigState'
 import { Application } from '../declarations'
 import packagejson from '../package.json'
 import { logger } from './ServerLogger'

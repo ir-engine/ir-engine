@@ -24,11 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PresentationSystemGroup, UndefinedEntity, defineSystem, getComponent } from '@ir-engine/ecs'
-import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { teleportAvatar } from '@ir-engine/engine/src/avatar/functions/moveAvatar'
 import { PortalComponent, PortalState } from '@ir-engine/engine/src/scene/components/PortalComponent'
 import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
+import { DomainConfigState } from '@ir-engine/spatial/src/resources/DomainConfigState'
 import { useEffect } from 'react'
 import { RouterState } from '../common/services/RouterService'
 import { LocationService, LocationState } from '../social/services/LocationService'

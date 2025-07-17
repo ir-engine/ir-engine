@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { StaticResourceType, invalidationPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { FileToAssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
+import { FileToAssetType } from '@ir-engine/spatial/src/resources/AssetType'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getStats } from '../static-resource/static-resource-helper'

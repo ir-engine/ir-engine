@@ -40,7 +40,7 @@ import { StandardCallbacks, setCallback } from '@ir-engine/spatial/src/common/Ca
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
-import { getAudioAsync } from '../../assets/functions/resourceLoaderHooks'
+import { getAudioAsync } from '@ir-engine/spatial/src/resources/resourceLoaderHooks'
 import { VideoComponent, VideoTexturePriorityQueueState } from '../../scene/components/VideoComponent'
 import { AudioState, useAudioState } from '../AudioState'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'

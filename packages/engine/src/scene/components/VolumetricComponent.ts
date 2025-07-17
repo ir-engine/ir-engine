@@ -42,6 +42,7 @@ import {
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, State, getMutableState, getState } from '@ir-engine/hyperflux'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { DomainConfigState } from '@ir-engine/spatial/src/resources/DomainConfigState'
 import { useEffect, useRef } from 'react'
 import {
   BufferGeometry,
@@ -58,7 +59,6 @@ import {
 } from 'three'
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
-import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { AudioState } from '../../audio/AudioState'
 import {
   DRACOTarget,

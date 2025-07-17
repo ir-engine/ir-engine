@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ImageFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
+import { ImageFileTypes } from '@ir-engine/spatial/src/resources/fileTypes'
 import { ImageLink, ImageLinkProps } from '@ir-engine/ui/editor'
 import React from 'react'
 import { useDrop } from 'react-dnd'

@@ -29,8 +29,8 @@ import path from 'path'
 
 import { DataTexture, Texture } from 'three'
 import { afterEach, beforeEach } from 'vitest'
-import { FileLoader } from '../../src/assets/loaders/base/FileLoader'
-import { TextureLoader } from '../../src/assets/loaders/texture/TextureLoader'
+import { FileLoader } from '../../src/resources/loaders/base/FileLoader'
+import { TextureLoader } from '../../src/resources/loaders/texture/TextureLoader'
 
 const toArrayBuffer = (buf) => {
   const arrayBuffer = new ArrayBuffer(buf.length)
@@ -89,7 +89,7 @@ export function overrideTextureLoaderLoad() {
   })
 }
 
-// export const loadGLTFAssetNode = async (assetPath: string, includeMaterials = false): Promise<GLTF> => {
+// export const overrideAssetLoaders = async (assetPath: string, includeMaterials = false): Promise<GLTF> => {
 //   const assetPathAbsolute = path.join(appRootPath.path, assetPath)
 //   const loader = createGLTFLoader(includeMaterials)
 //   const modelBuffer = toArrayBuffer(await fs.promises.readFile(assetPathAbsolute))

@@ -27,8 +27,8 @@ import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import multiLogger from '@ir-engine/common/src/logger'
-import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { getState } from '@ir-engine/hyperflux'
+import { AllFileTypes } from '@ir-engine/spatial/src/resources/fileTypes'
 
 import { getEntries, uploadProjectAssetsFromUpload } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'

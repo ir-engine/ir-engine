@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
+import { AssetExt } from './AssetType'
 
 // array containing audio file type
 export const AudioFileTypes = ['.mp3', '.mpeg', 'audio/mpeg', '.ogg']
@@ -42,7 +42,7 @@ export const ImageFileTypes = [
   'image/ktx2'
 ]
 //array containing model file type.
-export const ModelFileTypes = ['.glb', '.gltf', 'model/gltf-binary', 'model/gltf+json', '.fbx', '.usdz', '.vrm']
+export const ModelFileTypes = ['.glb', '.gltf', 'model/gltf-binary', 'model/gltf+json', '.vrm']
 //array containing volumetric file type.
 export const VolumetricFileTypes = ['.manifest']
 //array containing custom script type.
@@ -87,8 +87,6 @@ export const AssetTypeToMimeType = {
 export const ExtensionToAssetType = {
   gltf: AssetExt.GLTF,
   glb: AssetExt.GLB,
-  usdz: AssetExt.USDZ,
-  fbx: AssetExt.FBX,
   vrm: AssetExt.VRM,
   tga: AssetExt.TGA,
   ktx2: AssetExt.KTX2,

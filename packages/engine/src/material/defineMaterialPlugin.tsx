@@ -41,9 +41,9 @@ import {
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { removePlugin, setPlugin } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { useTexture } from '@ir-engine/spatial/src/resources/resourceLoaderHooks'
 import React, { useEffect } from 'react'
 import { Color, Material, Shader, Texture, Uniform, Vector2, Vector3, Vector4, WebGLRenderer } from 'three'
-import { useTexture } from '../assets/functions/resourceLoaderHooks'
 
 /**
  * A JSON Schema for a texture uniform.

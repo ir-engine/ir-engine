@@ -49,7 +49,7 @@ import {
   useHasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
+import { useGLTFComponent } from '@ir-engine/engine/src/assets/functions/useGLTFComponent'
 import { NO_PROXY, getMutableState, none, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Vector3_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
@@ -58,9 +58,9 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { getRendererEntity, useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
+import { AssetType, FileToAssetType } from '@ir-engine/spatial/src/resources/AssetType'
+import { useTexture } from '@ir-engine/spatial/src/resources/resourceLoaderHooks'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { useGLTFComponent, useTexture } from '../../assets/functions/resourceLoaderHooks'
 import {
   BehaviorJSON,
   DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
@@ -254,15 +254,15 @@ export const ParticleSystemComponent = defineComponent({
 
     const doLoadEmissionGeo =
       componentState.systemParameters.shape.type.value === 'mesh_surface' &&
-      AssetLoader.getAssetClass(componentState.systemParameters.shape.mesh.value ?? '') === AssetType.Model
+      FileToAssetType(componentState.systemParameters.shape.mesh.value ?? '') === AssetType.Model
 
     const doLoadInstancingGeo =
       componentState.systemParameters.instancingGeometry.value &&
-      AssetLoader.getAssetClass(componentState.systemParameters.instancingGeometry.value) === AssetType.Model
+      FileToAssetType(componentState.systemParameters.instancingGeometry.value) === AssetType.Model
 
     const doLoadTexture =
       componentState.systemParameters.texture.value &&
-      AssetLoader.getAssetClass(componentState.systemParameters.texture.value) === AssetType.Image
+      FileToAssetType(componentState.systemParameters.texture.value) === AssetType.Image
 
     const loadedEmissionGeo = !!shapeMeshEntity || !doLoadEmissionGeo
     const loadedInstanceGeo = !!geoDependencyEntity || !doLoadInstancingGeo

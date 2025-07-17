@@ -23,7 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { describe } from 'vitest'
+import { assert, describe, it } from 'vitest'
+import { ABSOLUTE_URL_PROTOCOL_REGEX } from './resourceLoaderFunctions'
 
 describe.skip('resourceLoaderFunctions', () => {
   // const url = '/packages/projects/default-project/assets/collisioncube.glb'
@@ -297,4 +298,18 @@ describe.skip('resourceLoaderFunctions', () => {
   //   )
   //   assert(spy.calledOnce)
   // })
+})
+
+describe('ABSOLUTE_URL_REGEX', () => {
+  it('should match absolute URLs', () => {
+    const positiveCases = ['http://example.com', 'https://example.com', 'ftp://example.com', '//example.com']
+
+    positiveCases.forEach((url) => {
+      assert.match(url, ABSOLUTE_URL_PROTOCOL_REGEX, `Expected '${url}' to match ABSOLUTE_URL_REGEX`)
+    })
+  })
+
+  it('should not match relative URLs', () => {
+    assert(!ABSOLUTE_URL_PROTOCOL_REGEX.test('example.com'), `Expected 'example.com' to not match ABSOLUTE_URL_REGEX`)
+  })
 })

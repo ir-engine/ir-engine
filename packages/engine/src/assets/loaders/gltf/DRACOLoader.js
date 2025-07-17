@@ -24,8 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { BufferAttribute, BufferGeometry } from 'three'
-import { FileLoader } from '../base/FileLoader'
-import { Loader } from '../base/Loader'
+import { FileLoader } from '@ir-engine/spatial/src/resources/loaders/base/FileLoader'
+import { Loader } from '@ir-engine/spatial/src/resources/loaders/base/Loader'
 
 const _taskCache = new WeakMap()
 

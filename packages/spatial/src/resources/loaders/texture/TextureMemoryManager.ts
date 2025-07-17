@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { getState } from '@ir-engine/hyperflux'
 import { CompressedPixelFormat, CompressedTexture, CubeTexture, Source, Texture } from 'three'
-import { AssetLoaderState } from '../../state/AssetLoaderState'
 import { ResourceCache, TextureData } from '../base/ResourceCache'
+import { KTX2LoaderState } from '../ktx2/KTX2LoaderState'
 import { TextureLoader } from './TextureLoader'
 
 type DiscardableSource = Source & { discarded?: boolean }
@@ -219,7 +219,7 @@ async function loadFromURL(texture: Texture | CompressedTexture): Promise<boolea
   if (!url) return false
 
   try {
-    const loader = 'isCompressedTexture' in texture ? getState(AssetLoaderState).ktx2Loader : new TextureLoader()
+    const loader = 'isCompressedTexture' in texture ? getState(KTX2LoaderState) : new TextureLoader()
 
     return new Promise<boolean>((resolve) => {
       loader.load(

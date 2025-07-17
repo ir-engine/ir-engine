@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,11 +23,39 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Entity } from '@ir-engine/ecs'
+import { defineState } from '@ir-engine/hyperflux'
+import { ResourceType } from './ResourceState'
 
-import { Object3D } from 'three';
+// Apply texture memory management patch
+import { applyTexturePatch } from './loaders/texture/TexturePatch'
 
-export class USDZExporter {
-    constructor();
-
-    parse(scene: Object3D): Promise<Uint8Array>;
+try {
+  // Apply the texture patch directly - simpler and more direct
+  applyTexturePatch()
+  // console.log('Texture memory management patch applied')
+} catch (e) {
+  console.error('Error applying texture memory patch:', e)
 }
+
+export enum ResourceStatus {
+  Unloaded,
+  Loading,
+  Loaded,
+  Error
+}
+
+export const ResourceCacheState = defineState({
+  name: 'ResourceCacheState',
+  initial: {} as Record<
+    string,
+    {
+      id: string
+      asset: unknown
+      status: ResourceStatus
+      type: ResourceType
+      references: Entity[]
+      metadata: Record<string, any>
+    }
+  >
+})

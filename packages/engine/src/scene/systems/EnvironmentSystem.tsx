@@ -45,6 +45,7 @@ import {
 import { Identifiable, NO_PROXY, State } from '@ir-engine/hyperflux'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { useTexture } from '@ir-engine/spatial/src/resources/resourceLoaderHooks'
 import { ResourceState } from '@ir-engine/spatial/src/resources/ResourceState'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import {
@@ -59,7 +60,6 @@ import {
   Texture,
   Vector3
 } from 'three'
-import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { EnvMapBakeComponent } from '../components/EnvMapBakeComponent'
 import { BoxProjectionPlugin, EnvMapComponent } from '../components/EnvmapComponent'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'

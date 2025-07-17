@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { getState } from '@ir-engine/hyperflux'
-import { DomainConfigState } from '../state/DomainConfigState'
+import { DomainConfigState } from './DomainConfigState'
 
 export const pathIndentifiers = {
   sceneRelative: '__$project$__',

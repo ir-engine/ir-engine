@@ -34,7 +34,6 @@ import { ActiveHelperSystem } from './systems/ActiveHelperSystem'
 import { CameraGizmoSystem } from './systems/CameraGizmoSystem'
 import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
 import { EditorControlSystem } from './systems/EditorControlSystem'
-import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
 import { ModelLoadingSpinnerSystem } from './systems/ModelLoadingSpinnerSystem'
 import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
 import { RenderMonitorSystem } from './systems/RenderMonitorSystem'
@@ -48,7 +47,6 @@ export {
   CameraGizmoSystem,
   ClickPlacementSystem,
   EditorControlSystem,
-  ModelHandlingSystem,
   ModelLoadingSpinnerSystem,
   ObjectGridSnapSystem,
   OverlaySystem,

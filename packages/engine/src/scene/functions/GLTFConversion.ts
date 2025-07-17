@@ -27,8 +27,8 @@ import { GLTF } from '@gltf-transform/core'
 import { Object3D } from 'three'
 
 import { getState } from '@ir-engine/hyperflux'
-import { pathIndentifiers } from '../../assets/functions/parseSceneJSON'
-import { DomainConfigState } from '../../assets/state/DomainConfigState'
+import { DomainConfigState } from '@ir-engine/spatial/src/resources/DomainConfigState'
+import { pathIndentifiers } from '@ir-engine/spatial/src/resources/parseSceneJSON'
 
 export const getCacheRegex = (fileServer: string) => {
   return new RegExp(`${fileServer}\/projects`)

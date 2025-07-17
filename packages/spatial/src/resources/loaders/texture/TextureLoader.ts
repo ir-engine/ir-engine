@@ -24,13 +24,13 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { isClient } from '@ir-engine/hyperflux'
-import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { LoadingManager, Texture } from 'three'
+import { iOS } from '../../../common/functions/isMobile'
 import { Loader } from '../base/Loader'
 import { ImageBitmapLoader } from '../image/ImageBitmapLoader'
 
 // import resource state such that we have type override
-import '@ir-engine/spatial/src/resources/ResourceState'
+import '../../ResourceState'
 
 const iOSMaxResolution = 1024
 

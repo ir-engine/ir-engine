@@ -37,9 +37,9 @@ import {
   removeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { AssetExt, FileToAssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
+import { AssetExt, FileToAssetExt } from '@ir-engine/spatial/src/resources/AssetType'
 
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
 import { NO_PROXY, defineState, getMutableState, getState, useHookstate, useState } from '@ir-engine/hyperflux'

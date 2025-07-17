@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
+import { AssetExt } from '@ir-engine/spatial/src/resources/AssetType'
 import { NativeTypes } from 'react-dnd-html5-backend'
 
 export type SceneElementType = {
@@ -59,18 +59,7 @@ export const ItemTypes = {
   Folder: 'folder',
   Audios: [AssetExt.MP3, 'mpeg', 'audio/mpeg'],
   Images: [AssetExt.PNG, AssetExt.JPEG, 'jpg', 'gif', AssetExt.KTX2, 'image/png', 'image/jpeg', 'image/ktx2'],
-  Models: [
-    AssetExt.GLB,
-    'model/glb',
-    AssetExt.GLTF,
-    'model/gltf',
-    AssetExt.FBX,
-    'model/fbx',
-    AssetExt.USDZ,
-    'model/usdz',
-    AssetExt.VRM,
-    'model/vrm'
-  ],
+  Models: [AssetExt.GLB, 'model/glb', AssetExt.GLTF, 'model/gltf', AssetExt.VRM, 'model/vrm'],
   Scripts: ['tsx', 'ts', 'jsx', 'js', 'script'],
   Videos: [AssetExt.MP4, AssetExt.M3U8, 'video/mp4', AssetExt.MKV],
   Volumetrics: ['manifest'],

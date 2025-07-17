@@ -28,11 +28,11 @@ Infinite Reality Engine. All Rights Reserved.
  * Unit Test suite for loading the `glTF.accessors` root property and all its children.
  * */
 import { createEngine, destroyEngine } from '@ir-engine/ecs'
+import { overrideFileLoaderLoad } from '@ir-engine/spatial/tests/util/overrideAssetLoaders'
 import { act, render } from '@testing-library/react'
 import { InterleavedBufferAttribute } from 'three'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { startEngineReactor } from '../../../tests/startEngineReactor'
-import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { mockGLTF, mockGLTFOptions } from '../../../tests/util/mockGLTF'
 import { DependencyCache, GLTFLoaderFunctions } from '../GLTFLoaderFunctions'
 

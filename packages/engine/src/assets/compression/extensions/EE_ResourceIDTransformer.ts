@@ -33,7 +33,7 @@ import {
   WriterContext
 } from '@gltf-transform/core'
 
-import { ResourceID } from '@ir-engine/engine/src/assets/classes/ModelTransform'
+import { ResourceID } from '../../classes/ModelTransform'
 
 const EXTENSION_NAME = 'EE_resourceId'
 

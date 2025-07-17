@@ -72,11 +72,11 @@ import {
   MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { getTextureAsync } from '@ir-engine/spatial/src/resources/resourceLoaderHooks'
 import React, { Suspense, useEffect } from 'react'
 import { applyPatch, createPatch, Operation, Patch } from 'rfc6902'
 import { AddOperation } from 'rfc6902/diff'
 import { Color, Material, SRGBColorSpace, Vector2, Vector3 } from 'three'
-import { getTextureAsync } from '../assets/functions/resourceLoaderHooks'
 import { squashOperations } from './squashOperations'
 
 export type SourceData = Record<EntityID, object>

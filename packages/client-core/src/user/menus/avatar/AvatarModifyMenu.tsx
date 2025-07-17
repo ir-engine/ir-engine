@@ -39,10 +39,10 @@ import {
   THUMBNAIL_WIDTH
 } from '@ir-engine/common/src/constants/AvatarConstants'
 import { AvatarType } from '@ir-engine/common/src/schema.type.module'
-import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+import { FileToAssetExt } from '@ir-engine/spatial/src/resources/AssetType'
 import { Button, Input } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import { Upload01Lg, User01Lg, XCloseLg } from '@ir-engine/ui/src/icons'
@@ -128,7 +128,7 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
     if (state.avatarFile && !state.formErrors.avatar) {
       await state.avatarFile.arrayBuffer()
 
-      const assetType = AssetLoader.getAssetType(state.avatarFile.name)
+      const assetType = FileToAssetExt(state.avatarFile.name)
       if (assetType) {
         url = URL.createObjectURL(state.avatarFile) + '#' + state.avatarFile.name
       }

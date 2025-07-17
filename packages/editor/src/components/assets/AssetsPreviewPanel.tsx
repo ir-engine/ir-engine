@@ -25,11 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import React, { useImperativeHandle } from 'react'
 
-import { AssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
+import { AssetExt } from '@ir-engine/spatial/src/resources/AssetType'
 
-import { getTextureAsync } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
+import { getTextureAsync } from '@ir-engine/spatial/src/resources/resourceLoaderHooks'
 import { AudioPreviewPanel } from './AssetPreviewPanels/AudioPreviewPanel'
 import { ImagePreviewPanel } from './AssetPreviewPanels/ImagePreviewPanel'
 import { JsonPreviewPanel } from './AssetPreviewPanels/JsonPreviewPanel'
@@ -87,7 +87,6 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading, previewPanelP
   }
 
   const renderPreview = (props) => {
-    console.log('props, contentType: ', props.contentType)
     switch (props.contentType) {
       case 'model/gltf':
       case 'model/gltf-binary':
@@ -97,8 +96,6 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading, previewPanelP
       case AssetExt.GLB:
       case AssetExt.GLTF:
       case 'gltf-binary':
-      case AssetExt.USDZ:
-      case AssetExt.FBX:
         const modelPreviewPanel = {
           PreviewSource: ModelPreviewPanel,
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name, size: props.size }

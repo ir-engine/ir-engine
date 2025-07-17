@@ -26,9 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import { Entity } from '@ir-engine/ecs'
 import { NO_PROXY, getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { EffectReactorProps, PostProcessingEffectState } from '@ir-engine/spatial/src/renderer/effects/EffectRegistry'
+import { useTexture } from '@ir-engine/spatial/src/resources/resourceLoaderHooks'
 import { BlendFunction, TextureEffect } from 'postprocessing'
 import React, { useEffect } from 'react'
-import { useTexture } from '../assets/functions/resourceLoaderHooks'
 import { PropertyTypes } from './PostProcessingRegister'
 
 declare module 'postprocessing' {
