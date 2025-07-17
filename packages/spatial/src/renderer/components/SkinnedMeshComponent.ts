@@ -67,7 +67,7 @@ export const SkinnedMeshComponent = defineComponent({
   schema: S.Type<SkinnedMesh>({ required: true }),
 
   onSet(entity, component, json) {
-    component.set(json as SkinnedMesh)
+    SkinnedMeshComponent.valueMap[entity] = json as SkinnedMesh
     setComponent(entity, MeshComponent, json as SkinnedMesh)
   },
 
@@ -172,7 +172,7 @@ export const SkinnedMeshComponent = defineComponent({
         geometry.dispose()
         material.dispose()
       }
-    }, [visible, debugEnabled, component.skeleton.value])
+    }, [visible, debugEnabled, component.skeleton])
 
     return null
   }

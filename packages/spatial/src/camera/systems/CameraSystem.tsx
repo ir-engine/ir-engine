@@ -113,22 +113,22 @@ function CameraReactor() {
       let startDistance = cameraSettings.thirdPersonDefaultDistance.value
       let minDistance = cameraSettings.thirdPersonMinDistance.value
       let maxDistance = cameraSettings.thirdPersonMaxDistance.value
-      if (follow.mode.value === FollowCameraMode.FirstPerson) {
+      if (follow.mode === FollowCameraMode.FirstPerson) {
         startDistance = 0
         minDistance = 0
         maxDistance = 0
-      } else if (follow.mode.value === FollowCameraMode.ThirdPerson) {
+      } else if (follow.mode === FollowCameraMode.ThirdPerson) {
         startDistance = cameraSettings.thirdPersonDefaultDistance.value
         minDistance = cameraSettings.thirdPersonMinDistance.value
         maxDistance = cameraSettings.thirdPersonMaxDistance.value
-      } else if (follow.mode.value === FollowCameraMode.TopDown) {
+      } else if (follow.mode === FollowCameraMode.TopDown) {
         startDistance = cameraSettings.topDownDefaultDistance.value
         minDistance = cameraSettings.topDownMinDistance.value
         maxDistance = cameraSettings.topDownMaxDistance.value
       }
-      follow.minDistance.set(minDistance)
-      follow.maxDistance.set(maxDistance)
-      follow.distance.set(startDistance)
+      follow.minDistance = minDistance
+      follow.maxDistance = maxDistance
+      follow.distance = startDistance
     }
   }, [cameraSettings])
 

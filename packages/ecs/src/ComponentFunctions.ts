@@ -149,9 +149,9 @@ export interface ComponentPartial<
    * @param component The Component's global data (aka {@link State}).
    * @param json The JSON object that contains this component's serialized data.
    */
-  onSet?: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
+  onSet?: (entity: Entity, component: ComponentType, json?: SetJSON) => void
   /** @todo Explain ComponentPartial.onRemove(...) */
-  onRemove?: (entity: Entity, component: State<ComponentType>) => void | Promise<void>
+  onRemove?: (entity: Entity, component: ComponentType) => void | Promise<void>
   /**
    * @summary Defines the {@link React.FC} async logic of the {@link Component} type.
    * @notes Any side-effects that depend on the component's data should be defined here.
@@ -191,12 +191,12 @@ export interface Component<
   schema?: Schema
   onInit?: (entity: Entity, initial: InitializationType) => ComponentType & OnInitValidateNotState<ComponentType>
   toJSON: (component: ComponentType) => JSON
-  onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
-  onRemove: (entity: Entity, component: State<ComponentType>) => void
+  onSet: (entity: Entity, component: ComponentType, json?: SetJSON) => void
+  onRemove: (entity: Entity, component: ComponentType) => void
   reactor?: any
   reactorRoot?: ReactorRoot
   storage?: StorageType
-  stateMap: Record<Entity, State<ComponentType, Identifiable>>
+  counterMap: Record<Entity, State<number, Identifiable>>
   valueMap: Record<Entity, ComponentType>
   errors: ErrorTypes[]
   storageSize: number
@@ -308,12 +308,12 @@ export const defineComponent = <
         Component.onSet = (entity, component, json) => {
           const [valid, key] = HasRequiredSchemaValues(def.schema as TSchema, json)
           if (!valid) throw new Error(`${def.name}:OnSet Missing required value for key ${key}`)
-          component.set(json as ComponentType)
+          Component.valueMap[entity] = json! as any
         }
       } else {
         Component.onSet = (entity, component, json) => {
           if (!json) return
-          component.set(json as ComponentType)
+          Component.valueMap[entity] = json! as any
         }
       }
     } else {
@@ -323,9 +323,11 @@ export const defineComponent = <
           if (!valid) throw new Error(`${def.name}:OnSet Missing required value for key ${key}`)
 
           if (Array.isArray(json) || typeof json !== 'object') {
-            component.set(json as ComponentType)
+            Component.valueMap[entity] = json as ComponentType
           } else {
-            component.merge(json as SetPartialStateAction<ComponentType>)
+            for (const key of Object.keys(json!)) {
+              component[key] = json![key]
+            }
           }
         }
       } else {
@@ -333,9 +335,11 @@ export const defineComponent = <
           if (!json) return
 
           if (Array.isArray(json) || typeof json !== 'object') {
-            component.set(json as ComponentType)
+            Component.valueMap[entity] = json as ComponentType
           } else {
-            component.merge(json as SetPartialStateAction<ComponentType>)
+            for (const key of Object.keys(json!)) {
+              component[key] = json![key]
+            }
           }
         }
       }
@@ -361,7 +365,7 @@ export const defineComponent = <
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
   // instance is added/removed, so each component instance has to be isolated from the others.
   Component.valueMap = {}
-  Component.stateMap = {}
+  Component.counterMap = {}
   if (Component.jsonID) {
     ComponentJSONIDMap.set(Component.jsonID, Component)
     // console.log(`Registered component ${Component.name} with jsonID ${Component.jsonID}`)
@@ -404,19 +408,19 @@ export const defineComponent = <
   return Component
 }
 
+/** @deprecated */
 export const getOptionalMutableComponent = <C extends Component>(
   entity: Entity,
   component: C
-): State<ComponentType<C>, Identifiable> | undefined => {
-  return !bitECS.hasComponent(HyperFlux.store, entity, component)
-    ? undefined
-    : (component.stateMap[entity]! as State<ComponentType<C>, Identifiable> | undefined)
+): DeepReadonly<ComponentType<C>> | undefined => {
+  return bitECS.hasComponent(HyperFlux.store, entity, component) ? component.valueMap[entity] : undefined
 }
 
+/** @deprecated */
 export const getMutableComponent = <C extends Component>(
   entity: Entity,
   component: C
-): State<ComponentType<C>, Identifiable> => {
+): DeepReadonly<ComponentType<C>> => {
   const componentState = getOptionalMutableComponent(entity, component)
   if (componentState === undefined) {
     console.warn(
@@ -431,14 +435,11 @@ export const getOptionalComponent = <C extends Component>(
   entity: Entity,
   component: C
 ): ComponentType<C> | undefined => {
-  // if (!bitECS.hasComponent(HyperFlux.store, entity, component)) return undefined
-  // return component.stateMap[entity]?.get(NO_PROXY_STEALTH) as ComponentType<C> | undefined
   return component.valueMap[entity]
 }
 
 export const getComponent = <C extends Component>(entity: Entity, component: C): ComponentType<C> => {
   const value = component.valueMap[entity] as ComponentType<C>
-  // const value = component.stateMap[entity]?.get(NO_PROXY_STEALTH) as ComponentType<C>
   if (value === undefined) {
     console.warn(
       `[getComponent]: entity ${entity} does not have ${component.name}. This will be an error in the future. Use getOptionalComponent if there is uncertainty over whether or not an entity has the specified component.`
@@ -497,21 +498,17 @@ const resizeComponent = (component: Component, size: number) => {
 
 let componentInstanceCount = 0
 
-const _getComponentState = <C extends Component>(entity: Entity, component: C) => {
-  if (!component.stateMap[entity]) {
+const _incrementCounter = (c: number) => c + 1
+
+const _getComponentCounter = <C extends Component>(entity: Entity, component: C) => {
+  if (!component.counterMap[entity]) {
     const id = `${component.name}_${entity}_${componentInstanceCount++}`
-    component.stateMap[entity] = hookstate(
+    component.counterMap[entity] = hookstate(
       none,
-      extend(identifiable(id), () => ({
-        onSet: (s, d) => {
-          const rootState = component.stateMap[entity]
-          component.valueMap[entity] = rootState.promised ? undefined : rootState.get(NO_PROXY_STEALTH)
-          LayerFunctions.propagateLayer(entity, component)
-        }
-      }))
-    ) as State<ComponentType<C>, Identifiable>
+      extend(identifiable(id), () => ({}))
+    ) as State<number, Identifiable>
   }
-  return component.stateMap[entity]
+  return component.counterMap[entity]
 }
 
 /**
@@ -544,18 +541,21 @@ export const setComponent = <C extends Component>(
     if (component.storageSize < nextSize) resizeComponent(component, nextSize)
   }
 
-  const state = _getComponentState(entity, component)
+  _getComponentCounter(entity, component)
 
   const exists = hasComponent(entity, component)
 
   if (!exists) {
+    component.counterMap[entity].set(0)
+    const data = createInitialComponentValue(entity, component)
+    component.valueMap[entity] = data
     // we must call onSet before setting the component in the ECS, such that the propagation
     // callback does not propagate data that may be required but not set yet
-    state.set(createInitialComponentValue(entity, component))
-    component.onSet(entity, state, args)
+    component.onSet(entity, data, args)
     bitECS.addComponent(HyperFlux.store, entity, component)
   } else {
-    component.onSet(entity, state, args)
+    component.onSet(entity, component.valueMap[entity], args)
+    component.counterMap[entity].set(_incrementCounter)
   }
 
   LayerFunctions.propagateLayer(entity, component)
@@ -599,7 +599,7 @@ export function hasComponents<C extends Component>(entity: Entity, components: C
 export function useHasComponents<C extends Component>(entity: Entity, components: C[]): boolean {
   let hasAllComponents = true
   for (const component of components) {
-    useOptionalComponent(entity, component)?.value
+    useOptionalComponent(entity, component)
     if (!hasComponent(entity, component)) hasAllComponents = false
   }
 
@@ -619,10 +619,10 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
   }
 
   bitECS.removeComponent(HyperFlux.store, entity, component)
-  component.onRemove(entity, component.stateMap[entity]!)
-  component.stateMap[entity]?.set(none)
-  destroy(component.stateMap[entity])
-  delete component.stateMap[entity]
+  component.onRemove(entity, component.valueMap[entity])
+  component.counterMap[entity].set(none)
+  destroy(component.counterMap[entity])
+  delete component.counterMap[entity]
   delete component.valueMap[entity]
 }
 
@@ -692,8 +692,11 @@ export const deserializeComponent = <C extends Component>(
       if (Component.storageSize < nextSize) resizeComponent(Component, nextSize)
     }
 
-    const state = _getComponentState(entity, Component)
-    state.set(createInitialComponentValue(entity, Component))
+    _getComponentCounter(entity, Component)
+    Component.counterMap[entity].set(0)
+
+    const data = createInitialComponentValue(entity, Component)
+    Component.valueMap[entity] = data
     bitECS.addComponent(HyperFlux.store, entity, Component)
   }
 
@@ -750,33 +753,31 @@ export function _use(promise) {
 /**
  * Use a component in a reactive context (a React component)
  */
-export function useComponent<C extends Component>(entity: Entity, component: C): State<ComponentType<C>, Identifiable> {
+export function useComponent<C extends Component>(entity: Entity, component: C): ComponentType<C> {
   if (entity === UndefinedEntity) throw new Error('InvalidUsage: useComponent called with UndefinedEntity')
 
-  const state = _getComponentState(entity, component)
+  const state = _getComponentCounter(entity, component)
+  useHookstate(state)
 
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
   if (state.promise) {
     ;(React.use ?? _use)(state.promise)
   }
 
-  return useHookstate(state) as State<ComponentType<C>, Identifiable>
+  return component.valueMap[entity]
 }
 
 export function useHasComponent<C extends Component>(entity: Entity, component: C): boolean {
-  useOptionalComponent(entity, component)?.value
+  useOptionalComponent(entity, component)
   return hasComponent(entity, component)
 }
 
 /**
  * Use a component in a reactive context (a React component)
  */
-export function useOptionalComponent<C extends Component>(
-  entity: Entity,
-  component: C
-): State<ComponentType<C>, Identifiable> | undefined {
-  const componentState = useHookstate(_getComponentState(entity, component)) as State<ComponentType<C>, Identifiable>
-  return componentState.promised ? undefined : componentState
+export function useOptionalComponent<C extends Component>(entity: Entity, component: C): ComponentType<C> | undefined {
+  const promised = useHookstate(_getComponentCounter(entity, component)).promised
+  return promised ? undefined : component.valueMap[entity]
 }
 
 export const getComponentCountOfType = <C extends Component>(component: C): number => {
@@ -1226,8 +1227,8 @@ export const LayerComponents = Object.entries(Layers).map(([name, layer]) => {
     onSet: (entity, _component) => {
       for (const [linkedLayer, relation] of LayerFunctions.getLayerRelationsTypes(layer)) {
         if (relation === LayerRelationTypes.Propagate) {
-          const linkedEntity = createEntity(linkedLayer as LayerID)
-          _component.relations[linkedLayer].set(linkedEntity)
+          const linkedEntity = createEntity(linkedLayer)
+          _component.relations[linkedLayer] = linkedEntity
           LayerComponents[linkedLayer].refs[linkedEntity] = entity
         }
       }
@@ -1236,7 +1237,7 @@ export const LayerComponents = Object.entries(Layers).map(([name, layer]) => {
     onRemove(entity, _component) {
       for (const [linkedLayer, relation] of LayerFunctions.getLayerRelationsTypes(layer)) {
         if (relation === LayerRelationTypes.Propagate) {
-          const relation = getComponent(entity, LayerComponents[layer]).relations[linkedLayer]
+          const relation = _component.relations[linkedLayer]
           removeEntity(relation)
           delete LayerComponents[linkedLayer].refs[relation]
         }
@@ -1445,9 +1446,16 @@ export const TransitionComponent = defineComponent({
 
     if (setProperty) {
       if (typeof output === 'number') {
-        const mutableComponent = getMutableComponent(entity, Component)
-        const mutableProperty = resolveObject(mutableComponent, transition.propertyPath as any) as any
-        mutableProperty.set(output)
+        if (transition.propertyPath) {
+          // update nested component value
+          const transitionPathParts = transition.propertyPath.split('/')
+          const component = getComponent(entity, Component)
+          const nested = resolveObject(component, transitionPathParts.slice(0, -1)) as any
+          nested[transitionPathParts[transitionPathParts.length - 1]] = output
+        } else {
+          // non-reactive root component value update
+          Component.valueMap[entity] = output
+        }
       } else if ('copy' in (propertyValue as any)) {
         ;(propertyValue as any).copy(output)
       }

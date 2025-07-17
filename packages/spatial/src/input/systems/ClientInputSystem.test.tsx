@@ -423,13 +423,10 @@ describe('ClientInputCleanupSystem', () => {
 
       // Set the expected data
       for (const entity of EntityList) {
-        const gamepad = getMutableComponent(entity, InputSourceComponent).source.gamepad!
-        for (let id = 0; id < gamepad?.value!.axes.length; ++id) {
-          gamepad.set((value) => {
-            // @ts-ignore Ignore the readonly property typecheck
-            if (value) value.axes[id] = Initial
-            return value
-          })
+        const gamepad = getMutableComponent(entity, InputSourceComponent).source.gamepad
+        for (let id = 0; id < gamepad!.axes.length; ++id) {
+          // @ts-expect-error
+          gamepad!.axes[id] = Initial
         }
       }
 

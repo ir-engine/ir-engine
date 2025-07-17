@@ -57,11 +57,11 @@ export const HemisphereLightComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      light.groundColor.set(hemisphereLightComponent.groundColor.value)
+      light.groundColor.set(hemisphereLightComponent.groundColor)
     }, [hemisphereLightComponent.groundColor])
 
     useEffect(() => {
-      light.intensity = hemisphereLightComponent.intensity.value
+      light.intensity = hemisphereLightComponent.intensity
     }, [hemisphereLightComponent.intensity])
 
     useEffect(() => {

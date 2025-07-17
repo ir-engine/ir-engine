@@ -354,8 +354,8 @@ describe('LineSegmentComponent', () => {
       })
 
       const lineSegmentComponent = getMutableComponent(entity, LineSegmentComponent)
-      lineSegmentComponent.geometry.set(geometry2)
-      lineSegmentComponent.material.set(material2)
+      lineSegmentComponent.geometry = geometry2
+      lineSegmentComponent.material = material2
 
       await vi.waitFor(
         () => {

@@ -78,25 +78,24 @@ export const FogSettingsComponent = defineComponent({
     useEffect(() => {
       if (!isVisible) return
 
-      const fogData = fog.value
-      switch (fogData.type) {
+      switch (fog.type) {
         case FogType.Linear:
-          setComponent(entity, FogComponent, new Fog(fogData.color, fogData.near, fogData.far))
+          setComponent(entity, FogComponent, new Fog(fog.color, fog.near, fog.far))
           removeFogShader()
           break
 
         case FogType.Exponential:
-          setComponent(entity, FogComponent, new FogExp2(fogData.color, fogData.density))
+          setComponent(entity, FogComponent, new FogExp2(fog.color, fog.density))
           removeFogShader()
           break
 
         case FogType.Brownian:
-          setComponent(entity, FogComponent, new FogExp2(fogData.color, fogData.density))
+          setComponent(entity, FogComponent, new FogExp2(fog.color, fog.density))
           initBrownianMotionFogShader()
           break
 
         case FogType.Height:
-          setComponent(entity, FogComponent, new FogExp2(fogData.color, fogData.density))
+          setComponent(entity, FogComponent, new FogExp2(fog.color, fog.density))
           initHeightFogShader()
           break
 
@@ -112,35 +111,35 @@ export const FogSettingsComponent = defineComponent({
     }, [fog.type, isVisible])
 
     useEffect(() => {
-      getOptionalComponent(entity, FogComponent)?.color.set(fog.color.value)
+      getOptionalComponent(entity, FogComponent)?.color.set(fog.color)
     }, [fog.color])
 
     useEffect(() => {
       const fogComponent = getOptionalComponent(entity, FogComponent)
-      if (fogComponent && fog.type.value !== FogType.Linear) (fogComponent as FogExp2).density = fog.density.value
+      if (fogComponent && fog.type !== FogType.Linear) (fogComponent as FogExp2).density = fog.density
     }, [fog.density])
 
     useEffect(() => {
       const fogComponent = getOptionalComponent(entity, FogComponent)
-      if (fogComponent) (fogComponent as Fog).near = fog.near.value
+      if (fogComponent) (fogComponent as Fog).near = fog.near
     }, [fog.near])
 
     useEffect(() => {
       const fogComponent = getOptionalComponent(entity, FogComponent)
-      if (fogComponent) (fogComponent as Fog).far = fog.far.value
+      if (fogComponent) (fogComponent as Fog).far = fog.far
     }, [fog.far])
 
     useEffect(() => {
       const fogComponent = getOptionalComponent(entity, FogComponent)
-      if (fogComponent && (fog.type.value === FogType.Brownian || fog.type.value === FogType.Height))
-        for (const s of FogShaders) s.uniforms.heightFactor.value = fog.height.value
+      if (fogComponent && (fog.type === FogType.Brownian || fog.type === FogType.Height))
+        for (const s of FogShaders) s.uniforms.heightFactor.value = fog.height
     }, [fog.height])
 
     useEffect(() => {
       const fogComponent = getOptionalComponent(entity, FogComponent)
-      if (fogComponent && fog.type.value === FogType.Brownian)
+      if (fogComponent && fog.type === FogType.Brownian)
         for (const s of FogShaders) {
-          s.uniforms.fogTimeScale.value = fog.timeScale.value
+          s.uniforms.fogTimeScale.value = fog.timeScale
         }
     }, [fog.timeScale])
 

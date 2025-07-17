@@ -223,10 +223,10 @@ const rendererReactor = () => {
   }, [engineRendererSettings.qualityLevel, engineRendererSettings.automatic])
 
   useEffect(() => {
-    if (!renderer.renderer.value) return
-    renderer.renderer.value.setPixelRatio(window.devicePixelRatio * engineRendererSettings.renderScale.value)
-    renderer.needsResize.set(true)
-  }, [engineRendererSettings.renderScale, !!renderer.renderer.value])
+    if (!renderer.renderer) return
+    renderer.renderer.setPixelRatio(window.devicePixelRatio * engineRendererSettings.renderScale.value)
+    renderer.needsResize = true
+  }, [engineRendererSettings.renderScale, !!renderer.renderer])
 
   useEffect(() => {
     changeRenderMode(entity)
@@ -237,7 +237,7 @@ const rendererReactor = () => {
 
 const cameraReactor = () => {
   const entity = useEntityContext()
-  const camera = useComponent(entity, CameraComponent).value
+  const camera = useComponent(entity, CameraComponent)
   const engineRendererSettings = useMutableState(RendererState)
 
   useEffect(() => {

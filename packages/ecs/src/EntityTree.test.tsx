@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { render } from '@testing-library/react'
+import { act, render } from '@testing-library/react'
 import React, { useEffect } from 'react'
 import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
@@ -334,7 +334,7 @@ describe('EntityTreeComponent', () => {
       assert.equal(node.children.length, 0)
       assert.equal(node.parentEntity, rootEntity)
 
-      assert.equal(getComponent(entity, UUIDComponent), testUUID)
+      assert.deepEqual(getComponent(entity, UUIDComponent), testUUID)
       assert.equal(UUIDComponent.getEntityByUUID(UUIDComponent.join(testUUID)), entity)
 
       const parentNode = getComponent(node.parentEntity!, EntityTreeComponent)
@@ -1418,10 +1418,12 @@ describe('useChildrenWithComponents', () => {
     setComponent(child_2, ComponentD)
 
     const { rerender, unmount } = render(tag)
+    await act(() => rerender(tag))
 
     assert(results.includes(child_1))
     assert(!results.includes(child_2))
-    unmount
+
+    unmount()
   })
 
   it('excludes entities that has some components in the exclude array', async () => {

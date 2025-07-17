@@ -85,38 +85,38 @@ export const EnvMapEditor: EditorComponentType = (props) => {
         <SelectInput
           key={props.entity}
           options={EnvMapSourceOptions}
-          value={envmapComponent.type.value}
+          value={envmapComponent.type}
           onChange={commitProperty(EnvMapComponent, 'type')}
         />
       </InputGroup>
-      {envmapComponent.type.value === EnvMapSourceType.Color && (
+      {envmapComponent.type === EnvMapSourceType.Color && (
         <InputGroup name="EnvMapColor" label={t('editor:properties.envmap.lbl-color')}>
           <ColorInput
-            value={envmapComponent.envMapSourceColor.value}
+            value={envmapComponent.envMapSourceColor}
             onChange={commitProperty(EnvMapComponent, 'envMapSourceColor')}
             onRelease={commitProperty(EnvMapComponent, 'envMapSourceColor')}
           />
         </InputGroup>
       )}
-      {envmapComponent.type.value === EnvMapSourceType.Bake && (
+      {envmapComponent.type === EnvMapSourceType.Bake && (
         <InputGroup name="EnvMapBake" label={t('editor:properties.envmap.lbl-bake')}>
           <SelectInput
             options={bakeEntities}
-            value={envmapComponent.envMapSourceEntityUUID.value}
+            value={envmapComponent.envMapSourceEntityUUID}
             onChange={commitProperty(EnvMapComponent, 'envMapSourceEntityUUID')}
           />
         </InputGroup>
       )}
-      {(envmapComponent.type.value === EnvMapSourceType.Cubemap ||
-        envmapComponent.type.value === EnvMapSourceType.Equirectangular) && (
+      {(envmapComponent.type === EnvMapSourceType.Cubemap ||
+        envmapComponent.type === EnvMapSourceType.Equirectangular) && (
         <div>
           <InputGroup name="Texture URL" label={t('editor:properties.envmap.lbl-textureUrl')}>
-            {envmapComponent.type.value === EnvMapSourceType.Cubemap && (
-              <FolderInput value={envmapComponent.envMapCubemapURL.value} onRelease={onChangeCubemapURLSource} />
+            {envmapComponent.type === EnvMapSourceType.Cubemap && (
+              <FolderInput value={envmapComponent.envMapCubemapURL} onRelease={onChangeCubemapURLSource} />
             )}
-            {envmapComponent.type.value === EnvMapSourceType.Equirectangular && (
+            {envmapComponent.type === EnvMapSourceType.Equirectangular && (
               <DroppableImageInput
-                src={envmapComponent.envMapSourceURL.value}
+                src={envmapComponent.envMapSourceURL}
                 onBlur={commitProperty(EnvMapComponent, 'envMapSourceURL')}
                 onChange={updateProperty(EnvMapComponent, 'envMapSourceURL')}
               />
@@ -128,12 +128,12 @@ export const EnvMapEditor: EditorComponentType = (props) => {
         </div>
       )}
       <div className="w-full py-1.5 pl-8 pr-3.5">
-        {envmapComponent.type.value !== EnvMapSourceType.None && (
+        {envmapComponent.type !== EnvMapSourceType.None && (
           <Slider
             min={0}
             step={0.01}
             max={10}
-            value={envmapComponent.envMapIntensity.value}
+            value={envmapComponent.envMapIntensity}
             onChange={updateProperty(EnvMapComponent, 'envMapIntensity')}
             onRelease={commitProperty(EnvMapComponent, 'envMapIntensity')}
             aria-label="EnvMap Intensity"

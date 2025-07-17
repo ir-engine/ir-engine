@@ -85,11 +85,11 @@ function PersistentAnchorReactor() {
   const objectComponent = useOptionalComponent(entity, ObjectComponent)
   const xrState = useMutableState(XRState)
 
-  const obj = objectComponent?.value as (Object3D & Mesh<BufferGeometry, MeshStandardMaterial>) | undefined
+  const obj = objectComponent as (Object3D & Mesh<BufferGeometry, MeshStandardMaterial>) | undefined
 
   useEffect(() => {
     if (!obj) return
-    const active = anchor.value && xrState.sessionMode.value === 'immersive-ar'
+    const active = anchor.active && xrState.sessionMode.value === 'immersive-ar'
     if (!active) return
 
     /** remove from scene and add to world origins */
@@ -98,7 +98,7 @@ function PersistentAnchorReactor() {
     setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
     TransformComponent.dirty[entity] = 1
 
-    const wireframe = anchor.wireframe.value
+    const wireframe = anchor.wireframe
 
     const shadowMesh = new Mesh().copy(obj, true)
     shadowMesh.material = new ShadowMaterial({ opacity: 0.5, color: 0x0a0a0a, colorWrite: false })

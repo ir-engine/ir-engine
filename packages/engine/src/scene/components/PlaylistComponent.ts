@@ -61,30 +61,30 @@ export const PlaylistComponent = defineComponent({
 
   playNextTrack: (entity, delta = 1) => {
     const component = getMutableComponent(entity, PlaylistComponent)
-    const tracksCount = component.tracks.value.length
+    const tracksCount = component.tracks.length
 
     if (tracksCount === 0) return
 
-    if (tracksCount === 1 || component.playMode.value === PlayMode.singleloop) {
-      const currentTrackUUID = component.currentTrackUUID.value
+    if (tracksCount === 1 || component.playMode === PlayMode.singleloop) {
+      const currentTrackUUID = component.currentTrackUUID
       component.currentTrackUUID.set('')
       component.currentTrackUUID.set(currentTrackUUID)
 
       return
     }
 
-    if (component.playMode.value === PlayMode.loop) {
-      const previousTrackIndex = (component.currentTrackIndex.value + delta + tracksCount) % tracksCount
-      component.currentTrackUUID.set(component.tracks[previousTrackIndex].uuid.value)
-    } else if (component.playMode.value === PlayMode.random) {
+    if (component.playMode === PlayMode.loop) {
+      const previousTrackIndex = (component.currentTrackIndex + delta + tracksCount) % tracksCount
+      component.currentTrackUUID.set(component.tracks[previousTrackIndex].uuid)
+    } else if (component.playMode === PlayMode.random) {
       let randomIndex = (Math.floor(Math.random() * tracksCount) + tracksCount) % tracksCount
 
       // Ensure that the random index is different from the current track index
-      while (randomIndex === component.currentTrackIndex.value) {
+      while (randomIndex === component.currentTrackIndex) {
         randomIndex = (Math.floor(Math.random() * tracksCount) + tracksCount) % tracksCount
       }
 
-      component.currentTrackUUID.set(component.tracks[randomIndex].uuid.value)
+      component.currentTrackUUID.set(component.tracks[randomIndex].uuid)
     }
   },
   reactor: () => {
@@ -93,7 +93,7 @@ export const PlaylistComponent = defineComponent({
 
     const findTrack = (trackUUID: string) => {
       for (let i = 0; i < component.tracks.length; i++) {
-        if (component.tracks[i].uuid.value === trackUUID) {
+        if (component.tracks[i].uuid === trackUUID) {
           return {
             track: component.tracks[i].get(NO_PROXY),
             index: i
@@ -107,7 +107,7 @@ export const PlaylistComponent = defineComponent({
     }
 
     useEffect(() => {
-      const index = findTrack(component.currentTrackUUID.value).index
+      const index = findTrack(component.currentTrackUUID).index
       component.currentTrackIndex.set(index)
     }, [component.currentTrackUUID, component.tracks])
 
@@ -122,19 +122,19 @@ export const PlaylistComponent = defineComponent({
     }, [component.tracks])
 
     useEffect(() => {
-      if (component.autoplay.value && component.tracks.length > 0) {
+      if (component.autoplay && component.tracks.length > 0) {
         let nonEmptyTrackIndex = -1
         for (let i = 0; i < component.tracks.length; i++) {
-          if (component.tracks[i].src.value !== '') {
+          if (component.tracks[i].src !== '') {
             nonEmptyTrackIndex = i
             break
           }
         }
         if (nonEmptyTrackIndex === -1) return
 
-        if (component.currentTrackUUID.value === '') {
+        if (component.currentTrackUUID === '') {
           component.merge({
-            currentTrackUUID: component.tracks[nonEmptyTrackIndex].uuid.value,
+            currentTrackUUID: component.tracks[nonEmptyTrackIndex].uuid,
             currentTrackIndex: nonEmptyTrackIndex
           })
           component.paused.set(false)

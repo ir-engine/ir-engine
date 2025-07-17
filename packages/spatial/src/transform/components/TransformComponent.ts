@@ -95,9 +95,9 @@ export const TransformComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (json.position) component.position.value.copy(json.position)
-    if (json.rotation) component.rotation.value.copy(json.rotation)
-    if (json.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
+    if (json.position) component.position.copy(json.position)
+    if (json.rotation) component.rotation.copy(json.rotation)
+    if (json.scale && !isZero(json.scale)) component.scale.copy(json.scale)
 
     composeMatrix(entity)
     const entityTree = getOptionalComponent(entity, EntityTreeComponent)
@@ -105,9 +105,9 @@ export const TransformComponent = defineComponent({
     if (parentEntity) {
       const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
       if (parentTransform)
-        component.matrixWorld.value.multiplyMatrices(parentTransform.matrixWorld, component.matrix.value as Matrix4)
+        component.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, component.matrix as Matrix4)
     } else {
-      component.matrixWorld.value.copy(component.matrix.value as Matrix4)
+      component.matrixWorld.copy(component.matrix as Matrix4)
     }
   },
 

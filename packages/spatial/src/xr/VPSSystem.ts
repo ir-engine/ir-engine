@@ -43,8 +43,8 @@ const execute = () => {
   for (const action of vpsAnchorFoundQueue()) {
     for (const entity of anchors) {
       const anchor = getMutableComponent(entity, PersistentAnchorComponent)
-      if (anchor.name.value === action.name) {
-        anchor.active.set(true)
+      if (anchor.name === action.name) {
+        anchor.active = true
         const transform = getComponent(entity, TransformComponent)
         transform.position.copy(action.position)
         transform.rotation.copy(action.rotation)
@@ -55,7 +55,7 @@ const execute = () => {
   for (const action of vpsAnchorUpdatedQueue()) {
     for (const entity of anchors) {
       const anchor = getMutableComponent(entity, PersistentAnchorComponent)
-      if (anchor.name.value === action.name) {
+      if (anchor.name === action.name) {
         const transform = getComponent(entity, TransformComponent)
         transform.position.copy(action.position)
         transform.rotation.copy(action.rotation)
@@ -66,7 +66,7 @@ const execute = () => {
   for (const action of vpsAnchorLostQueue()) {
     for (const entity of anchors) {
       const anchor = getMutableComponent(entity, PersistentAnchorComponent)
-      if (anchor.name.value === action.name) anchor.active.set(false)
+      if (anchor.name === action.name) anchor.active = false
     }
   }
 }

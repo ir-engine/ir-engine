@@ -31,7 +31,6 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
-  getOptionalMutableComponent,
   hasComponent,
   setComponent,
   useComponent,
@@ -41,7 +40,11 @@ import {
 } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, State, getMutableState, getState } from '@ir-engine/hyperflux'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import {
+  ObjectComponent,
+  addObjectToGroup,
+  removeObjectFromGroup
+} from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { useEffect, useRef } from 'react'
 import {
   BufferGeometry,
@@ -147,7 +150,7 @@ const initialState = {
   },
   paused: true,
   preTrackBufferingCallback: undefined as undefined | Pretrackbufferingcallback
-}
+} as ComponentType<typeof VolumetricComponent>
 
 const resetState = {
   useVideoTextureForBaseColor: false, // legacy for UVOL1
@@ -179,7 +182,7 @@ const resetState = {
     firstFrameLoaded: {} as Partial<Record<TextureType, boolean>>
   },
   paused: true
-}
+} as ComponentType<typeof VolumetricComponent>
 
 export const TextureTypeSchema = S.LiteralUnion(['normal', 'metallicRoughness', 'emissive', 'occlusion', 'baseColor'])
 
@@ -248,17 +251,17 @@ export const VolumetricComponent = defineComponent({
   errors: ['INVALID_TRACK', 'GEOMETRY_ERROR', 'TEXTURE_ERROR', 'UNKNOWN_ERROR'],
 
   canPlayWithoutPause: (entity: Entity) => {
-    const component = getMutableComponent(entity, VolumetricComponent)
+    const component = getComponent(entity, VolumetricComponent)
     const manifest = volumeticMutables[entity].manifest
     if (Object.keys(manifest).length === 0) {
       return false
     }
 
-    const currentTimeInMS = component.time.currentTime.value
+    const currentTimeInMS = component.time.currentTime
     const geometryBufferDataContainer = volumeticMutables[entity].geometryBufferData
 
     let durationInMS = -1
-    const geometryType = component.geometryType.value
+    const geometryType = component.geometryType
 
     if (geometryType === GeometryType.Corto) {
       const frameCount = (manifest as OldManifestSchema).frameData.length
@@ -271,7 +274,7 @@ export const VolumetricComponent = defineComponent({
       return false
     }
 
-    if (!component.geometry.initialBufferLoaded.value) {
+    if (!component.geometry.initialBufferLoaded) {
       return false
     }
 
@@ -287,13 +290,13 @@ export const VolumetricComponent = defineComponent({
       return false
     }
 
-    if (component.useVideoTextureForBaseColor.value) {
+    if (component.useVideoTextureForBaseColor) {
       return true
     }
 
-    const textureTypes = component.textureInfo.textureTypes.value
+    const textureTypes = component.textureInfo.textureTypes
     for (const textureType of textureTypes) {
-      const textureInfo = component.texture[textureType].get(NO_PROXY)
+      const textureInfo = component.texture[textureType]
 
       const textureBufferInfo = volumeticMutables[entity].texture[textureType]
 
@@ -301,7 +304,7 @@ export const VolumetricComponent = defineComponent({
         return false
       }
 
-      if (!component.textureInfo.initialBufferLoaded.value[textureType]) {
+      if (!component.textureInfo.initialBufferLoaded[textureType]) {
         return false
       }
       const textureBufferDataContainer = textureBufferInfo.bufferData
@@ -325,14 +328,15 @@ export const VolumetricComponent = defineComponent({
 
   adjustGeometryTarget: (entity: Entity, externalMetric?: number) => {
     const component = getMutableComponent(entity, VolumetricComponent)
-    if (component.geometry.userTarget.value !== -1) {
-      if (component.geometry.currentTarget.value !== component.geometry.userTarget.value) {
-        component.geometry.currentTarget.set(component.geometry.userTarget.value)
+    if (component.geometry.userTarget !== -1) {
+      if (component.geometry.currentTarget !== component.geometry.userTarget) {
+        component.geometry.currentTarget = component.geometry.userTarget
+        setComponent(entity, VolumetricComponent)
       }
       return
     }
 
-    const geometryType = component.geometryType.value
+    const geometryType = component.geometryType
     const bufferData = volumeticMutables[entity].geometryBufferData
 
     if (geometryType !== GeometryType.Corto) {
@@ -343,14 +347,14 @@ export const VolumetricComponent = defineComponent({
 
       const metric = externalMetric === undefined ? totalFetchTime / totalPlayTime : externalMetric
       if (metric >= 0.5) {
-        if (component.geometry.currentTarget.value > 0) {
-          console.log('Decreasing geometry target, from ', component.geometry.currentTarget.value)
-          component.geometry.currentTarget.set((v) => v - 1)
+        if (component.geometry.currentTarget > 0) {
+          console.log('Decreasing geometry target, from ', component.geometry.currentTarget)
+          component.geometry.currentTarget -= 1
         }
       } else if (metric <= 0.1) {
-        if (component.geometry.currentTarget.value < component.geometry.targets.value.length - 1) {
-          console.log('Increasing geometry target from ', component.geometry.currentTarget.value)
-          component.geometry.currentTarget.set((v) => v + 1)
+        if (component.geometry.currentTarget < component.geometry.targets.length - 1) {
+          console.log('Increasing geometry target from ', component.geometry.currentTarget)
+          component.geometry.currentTarget += 1
         }
       }
       if (externalMetric === undefined) {
@@ -360,16 +364,14 @@ export const VolumetricComponent = defineComponent({
   },
 
   adjustTextureTarget: (entity: Entity, textureType: TextureType, externalMetric?: number) => {
-    const component = getMutableComponent(entity, VolumetricComponent)
-    const textureInfo = component.texture[textureType].get(NO_PROXY)
+    const component = getComponent(entity, VolumetricComponent)
+    const textureInfo = component.texture[textureType]
     const textureBufferInfo = volumeticMutables[entity].texture[textureType]
 
     if (textureInfo && textureBufferInfo) {
       if (textureInfo.userTarget !== -1) {
         if (textureInfo.currentTarget !== textureInfo.userTarget) {
-          component.texture[textureType].merge({
-            currentTarget: textureInfo.userTarget
-          })
+          component.texture[textureType].currentTarget = textureInfo.userTarget
         }
         return
       }
@@ -383,15 +385,11 @@ export const VolumetricComponent = defineComponent({
       const metric = externalMetric === undefined ? totalFetchTime / totalPlayTime : externalMetric
       if (metric >= 0.5) {
         if (textureInfo.currentTarget > 0) {
-          component.texture[textureType].merge({
-            currentTarget: textureInfo.currentTarget - 1
-          })
+          component.texture[textureType].currentTarget -= 1
         }
       } else if (metric <= 0.1) {
         if (textureInfo.currentTarget < textureInfo.targets.length - 1) {
-          component.texture[textureType].merge({
-            currentTarget: textureInfo.currentTarget + 1
-          })
+          component.texture[textureType].currentTarget += 1
         }
       }
       if (externalMetric === undefined) {
@@ -404,8 +402,8 @@ export const VolumetricComponent = defineComponent({
     const component = getMutableComponent(entity, VolumetricComponent)
 
     console.log('Cleaning up track')
-    clearInterval(component.setIntervalId.value)
-    console.log('Cleared buffer loop interval: ', component.setIntervalId.value)
+    clearInterval(component.setIntervalId)
+    console.log('Cleared buffer loop interval: ', component.setIntervalId)
 
     const mesh = volumeticMutables[entity].mesh
     if (mesh && volumeticMutables[entity].group) {
@@ -457,15 +455,13 @@ export const VolumetricComponent = defineComponent({
 
     console.log('Setting track to initial state: ', initialState)
 
-    component.merge(structuredClone(resetState) as ComponentType<typeof VolumetricComponent>)
+    setComponent(entity, VolumetricComponent, structuredClone(resetState))
 
     volumeticMutables[entity].geometryBufferData = new BufferDataContainer()
 
-    const mediaElement = getOptionalMutableComponent(entity, MediaElementComponent)
+    const mediaElement = getOptionalComponent(entity, MediaElementComponent)
     if (mediaElement) {
-      const element = mediaElement.element.get(NO_PROXY)
-      // @ts-ignore
-      element.src = ''
+      mediaElement.element.src = ''
     }
 
     if (hasComponent(entity, VolumetricComponent)) {
@@ -494,11 +490,11 @@ function VolumetricComponentReactor() {
   const offset = useRef(new Vector2(0, 0))
 
   useEffect(() => {
-    if (!component.geometry.initialBufferLoaded.value) {
+    if (!component.geometry.initialBufferLoaded) {
       return
     }
-    if (component.useVideoTextureForBaseColor.value) {
-      addObjectToGroup(entity, volumeticMutables[entity].group)
+    if (component.useVideoTextureForBaseColor) {
+      setComponent(entity, ObjectComponent, volumeticMutables[entity].group)
       const media = getComponent(entity, MediaElementComponent).element
       handleMediaAutoplay({
         audioContext,
@@ -507,23 +503,23 @@ function VolumetricComponentReactor() {
       })
       return
     }
-    const textureInitialBufferLoaded = component.textureInfo.initialBufferLoaded.get(NO_PROXY)
-    const textureTypes = component.textureInfo.textureTypes.value
+    const textureInitialBufferLoaded = component.textureInfo.initialBufferLoaded
+    const textureTypes = component.textureInfo.textureTypes
     for (const textureType of textureTypes) {
       if (!textureInitialBufferLoaded[textureType]) {
         return
       }
     }
-    if (playlistComponent?.autoplay.value && playlistComponent?.paused.value) {
+    if (playlistComponent?.autoplay && playlistComponent?.paused) {
       playlistComponent.paused.set(false)
-    } else if (playlistComponent?.autoplay.value && !playlistComponent?.paused.value) {
+    } else if (playlistComponent?.autoplay && !playlistComponent?.paused) {
       component.time.checkpointAbsolute.set(Date.now())
       component.paused.set(false)
     }
 
     console.log('All initial buffers loaded')
     addObjectToGroup(entity, volumeticMutables[entity].group)
-  }, [component.geometry.initialBufferLoaded, component.textureInfo.initialBufferLoaded])
+  }, [audioContext, component.geometry.initialBufferLoaded, component.textureInfo.initialBufferLoaded])
 
   const bufferLoop = () => {
     if (!hasComponent(entity, VolumetricComponent)) {
@@ -531,13 +527,12 @@ function VolumetricComponentReactor() {
       return
     }
 
-    const currentTimeInMS = component.time.currentTime.value
-    const geometryTarget = component.geometry.targets[component.geometry.currentTarget.value].value
+    const currentTimeInMS = component.time.currentTime
+    const geometryTarget = component.geometry.targets[component.geometry.currentTarget]
     const manifest = volumeticMutables[entity].manifest
-    const geometryType = component.geometryType.value
-    const manifestPath = playlistComponent?.tracks.value.find(
-      (track) => track.uuid === playlistComponent.currentTrackUUID.value
-    )?.src
+    const geometryType = component.geometryType
+    const manifestPath = playlistComponent?.tracks.find((track) => track.uuid === playlistComponent.currentTrackUUID)
+      ?.src
     if (!manifestPath) {
       return
     }

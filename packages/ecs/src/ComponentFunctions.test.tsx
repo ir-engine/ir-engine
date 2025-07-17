@@ -506,21 +506,6 @@ describe('ComponentFunctions', async () => {
 
       describe('.. when `@param def`.schema represents a single value ...', () => {
         describe('... when `@param def`.schema has a required schema value ....', () => {
-          it('.... should set (closure)`@param Component`.onSet to a function that throws an error when `@param json` returns an invalid schema value based on the `(closure)@param def`.schema ', () => {
-            const component = defineComponent({
-              name: 'TestComponent',
-              schema: S.Number({ default: 1234, required: true })
-            })
-            expect(IsSingleValueSchema(component.schema)).toBeTruthy()
-            setComponent(testEntity, component, 21)
-            const data = getComponent(testEntity, component)
-            const value = 'SomeString'
-
-            expect(() => {
-              component.onSet(testEntity, data as any, value as any)
-            }).toThrowError()
-          })
-
           it('.... should set (closure)`@param Component`.onSet to a function that calls `@param component`.set with `@param component`.json as arguments', () => {
             const Expected = 42
 
@@ -572,21 +557,6 @@ describe('ComponentFunctions', async () => {
 
       describe('.. when `@param def`.schema represents multiple values ...', () => {
         describe('... when `@param def`.schema has a required schema value ....', () => {
-          it('.... should set (closure)`@param Component`.onSet to a function that throws an error when `@param json` returns an invalid schema value based on the `(closure)@param def`.schema ', () => {
-            const component = defineComponent({
-              name: 'TestComponent',
-              schema: S.Object({ one: S.Number({ default: 1234 }) }, { required: true })
-            })
-            expect(IsSingleValueSchema(component.schema)).toBeFalsy()
-            setComponent(testEntity, component, { one: 21 })
-            const data = getComponent(testEntity, component)
-            const value = 'SomeString'
-
-            expect(() => {
-              component.onSet(testEntity, data as any, value as any)
-            }).toThrowError()
-          })
-
           /** @todo Array is not a multivalue. Is this branch ever reachable? */
           it.todo(
             '.... should set (closure)`@param Component`.onSet to a function that calls component.set with `@param json` as arguments when json is an array',
@@ -736,7 +706,7 @@ describe('ComponentFunctions', async () => {
 
         onSet(entity, component, json) {
           if (!json) return
-          if (typeof json.val !== 'undefined') component.val.set(json.val)
+          if (typeof json.val !== 'undefined') component.val = json.val
         }
       })
 
@@ -775,7 +745,7 @@ describe('ComponentFunctions', async () => {
 
         onSet(entity, component, json) {
           if (!json) return
-          if (typeof json.val !== 'undefined') component.val.set(json.val)
+          if (typeof json.val !== 'undefined') component.val = json.val
         }
       })
 
@@ -813,7 +783,7 @@ describe('ComponentFunctions', async () => {
 
         onSet(entity, component, json) {
           if (!json) return
-          if (typeof json.val !== 'undefined') component.val.set(json.val)
+          if (typeof json.val !== 'undefined') component.val = json.val
         }
       })
 
@@ -857,7 +827,7 @@ describe('ComponentFunctions', async () => {
 
         onSet(entity, component, json) {
           if (!json) return
-          if (typeof json.val !== 'undefined') component.val.set(json.val)
+          if (typeof json.val !== 'undefined') component.val = json.val
         }
       })
       const TestComponent2 = defineComponent({
@@ -869,7 +839,7 @@ describe('ComponentFunctions', async () => {
 
         onSet(entity, component, json) {
           if (!json) return
-          if (typeof json.val !== 'undefined') component.val.set(json.val)
+          if (typeof json.val !== 'undefined') component.val = json.val
         }
       })
 
@@ -911,7 +881,8 @@ describe('ComponentFunctions', async () => {
       removeComponent(entity, TestComponent)
 
       assert.ok(!hasComponent(entity, TestComponent))
-      assert.ok(TestComponent.stateMap[entity] === undefined)
+      assert.ok(TestComponent.valueMap[entity] === undefined)
+      assert.ok(TestComponent.counterMap[entity] === undefined)
     })
 
     it('should remove component with AoS values', () => {
@@ -924,7 +895,7 @@ describe('ComponentFunctions', async () => {
 
         onSet(entity, component, json) {
           if (!json) return
-          if (typeof json.val !== 'undefined') component.val.set(json.val)
+          if (typeof json.val !== 'undefined') component.val = json.val
         }
       })
 
@@ -997,8 +968,9 @@ describe('deserializeComponent', () => {
     const json = null
     const schema = S.String({ validate: () => false, default: 'TestString' }) // validate=>false   would always trigger the error, but we pass null to json
     const prev = 'PrevValue'
-    const onSet = (_: any, component: any, value: string) => {
-      component.set(value ?? 'Test')
+    const onSet = (entity: any, c: any, value: string) => {
+      component.valueMap[entity] = value ?? 'Test'
+      component.counterMap[entity].set((c) => c++)
     }
     const component = defineComponent({ name: 'TestComponent', schema: schema, onSet: onSet })
 
@@ -1015,8 +987,9 @@ describe('deserializeComponent', () => {
     const json = undefined
     const schema = S.String({ validate: () => false, default: 'TestString' }) // validate=>false   would always trigger the error, but we pass undefined to json
     const prev = 'PrevValue'
-    const onSet = (_: any, component: any, value: string) => {
-      component.set(value ?? 'Test')
+    const onSet = (entity: any, c: any, value: string) => {
+      component.valueMap[entity] = value ?? 'Test'
+      component.counterMap[entity].set((c) => c++)
     }
     const component = defineComponent({ name: 'TestComponent', schema: schema, onSet: onSet })
 
@@ -1051,8 +1024,9 @@ describe('deserializeComponent', () => {
     const json = Expected
     const schema = S.String({ default: 'TestString' })
     const prev = 'PrevValue'
-    const onSet = (_: any, component: any, value: string) => {
-      component.set(value ?? 'Test')
+    const onSet = (entity: any, c: any, value: string) => {
+      component.valueMap[entity] = value ?? 'Test'
+      component.counterMap[entity].set((c) => c++)
     }
     const component = defineComponent({ name: 'TestComponent', schema: schema, onSet: onSet })
     // 1. Sanity check (input & dependencies)
@@ -1092,7 +1066,7 @@ describe('ComponentFunctions Hooks', async () => {
     const Reactor = () => {
       const data = useComponent(testEntity, component)
       useEffect(() => {
-        result = data.value as ResultType
+        result = data as ResultType
         ++counter
       }, [data])
       return null
@@ -1115,6 +1089,7 @@ describe('ComponentFunctions Hooks', async () => {
     type ResultType = string | undefined
     const ResultValue: ResultType = 'ReturnValue'
     const component = defineComponent({ name: 'TestComponent', onInit: () => ResultValue })
+
     let testEntity = UndefinedEntity
     let result: ResultType = undefined
     let counter = 0
@@ -1135,7 +1110,7 @@ describe('ComponentFunctions Hooks', async () => {
     const Reactor = () => {
       const data = useOptionalComponent(testEntity, component)
       useEffect(() => {
-        result = data?.value
+        result = data
         ++counter
       }, [data])
       return null
@@ -1191,7 +1166,7 @@ describe('ComponentFunctions Hooks', async () => {
         // Call the hook to set the data
         const data = useComponent(props.entity, component)
         useEffect(() => {
-          result = UUIDComponent.join(data.value)
+          result = UUIDComponent.join(data)
           ++counter
         }, [data])
         return null
@@ -1236,7 +1211,7 @@ describe('ComponentFunctions Hooks', async () => {
 
       // Run the test case
       const tag = <Reactor />
-      assert.equal(TestComponent.stateMap[entity], undefined)
+      assert.equal(TestComponent.valueMap[entity], undefined)
       const { rerender, unmount } = render(tag)
       assert.equal(result, 1)
 

@@ -119,7 +119,7 @@ const ModelEntityReactor = (props: { entity: Entity }) => {
 
 const useIsUnlit = (entity: Entity) => {
   let isUnlit = useHasComponent(entity, KHRUnlitExtensionComponent)
-  const materialInstanceUUIDs = useOptionalComponent(entity, MaterialInstanceComponent)?.entities.value
+  const materialInstanceUUIDs = useOptionalComponent(entity, MaterialInstanceComponent)?.entities
 
   if (materialInstanceUUIDs) {
     for (const matEntity of materialInstanceUUIDs) {

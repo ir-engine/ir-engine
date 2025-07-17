@@ -153,15 +153,15 @@ describe('onSessionEnd', () => {
     const Initial = new Vector3(41, 42, 43)
     // Set the data as expected
     const origin = getMutableComponent(getState(ReferenceSpaceState).originEntity, TransformComponent)
-    origin.position.set(Initial)
+    origin.position = Initial
     // Sanity check before running
-    const before = origin.position.get()
+    const before = origin.position
     expect(before.x).to.be.approximately(Initial.x, Epsilon)
     expect(before.y).to.be.approximately(Initial.y, Epsilon)
     expect(before.z).to.be.approximately(Initial.z, Epsilon)
     // Run and Check the result
     onSessionEnd()
-    const result = origin.position.get()
+    const result = origin.position
     expect(result.x).to.be.approximately(Expected.x, Epsilon)
     expect(result.y).to.be.approximately(Expected.y, Epsilon)
     expect(result.z).to.be.approximately(Expected.z, Epsilon)
@@ -173,16 +173,16 @@ describe('onSessionEnd', () => {
     const Initial = new Quaternion(40, 41, 42, 43).normalize()
     // Set the data as expected
     const origin = getMutableComponent(getState(ReferenceSpaceState).originEntity, TransformComponent)
-    origin.rotation.set(Initial)
+    origin.rotation = Initial
     // Sanity check before running
-    const before = origin.rotation.get()
+    const before = origin.rotation
     expect(before.x).to.be.approximately(Initial.x, Epsilon)
     expect(before.y).to.be.approximately(Initial.y, Epsilon)
     expect(before.z).to.be.approximately(Initial.z, Epsilon)
     expect(before.w).to.be.approximately(Initial.w, Epsilon)
     // Run and Check the result
     onSessionEnd()
-    const result = origin.rotation.get()
+    const result = origin.rotation
     expect(result.x).to.be.approximately(Expected.x, Epsilon)
     expect(result.y).to.be.approximately(Expected.y, Epsilon)
     expect(result.z).to.be.approximately(Expected.z, Epsilon)
@@ -195,15 +195,15 @@ describe('onSessionEnd', () => {
     const Initial = new Vector3(41, 42, 43)
     // Set the data as expected
     const origin = getMutableComponent(getState(ReferenceSpaceState).originEntity, TransformComponent)
-    origin.scale.set(Initial)
+    origin.scale = Initial
     // Sanity check before running
-    const before = origin.scale.get()
+    const before = origin.scale
     expect(before.x).to.be.approximately(Initial.x, Epsilon)
     expect(before.y).to.be.approximately(Initial.y, Epsilon)
     expect(before.z).to.be.approximately(Initial.z, Epsilon)
     // Run and Check the result
     onSessionEnd()
-    const result = origin.scale.get()
+    const result = origin.scale
     expect(result.x).to.be.approximately(Expected.x, Epsilon)
     expect(result.y).to.be.approximately(Expected.y, Epsilon)
     expect(result.z).to.be.approximately(Expected.z, Epsilon)
@@ -215,15 +215,15 @@ describe('onSessionEnd', () => {
     const Initial = new Vector3(41, 42, 43)
     // Set the data as expected
     const localFloor = getMutableComponent(getState(ReferenceSpaceState).localFloorEntity, TransformComponent)
-    localFloor.position.set(Initial)
+    localFloor.position = Initial
     // Sanity check before running
-    const before = localFloor.position.get()
+    const before = localFloor.position
     expect(before.x).to.be.approximately(Initial.x, Epsilon)
     expect(before.y).to.be.approximately(Initial.y, Epsilon)
     expect(before.z).to.be.approximately(Initial.z, Epsilon)
     // Run and Check the result
     onSessionEnd()
-    const result = localFloor.position.get()
+    const result = localFloor.position
     expect(result.x).to.be.approximately(Expected.x, Epsilon)
     expect(result.y).to.be.approximately(Expected.y, Epsilon)
     expect(result.z).to.be.approximately(Expected.z, Epsilon)
@@ -235,16 +235,16 @@ describe('onSessionEnd', () => {
     const Initial = new Quaternion(40, 41, 42, 43).normalize()
     // Set the data as expected
     const localFloor = getMutableComponent(getState(ReferenceSpaceState).localFloorEntity, TransformComponent)
-    localFloor.rotation.set(Initial)
+    localFloor.rotation = Initial
     // Sanity check before running
-    const before = localFloor.rotation.get()
+    const before = localFloor.rotation
     expect(before.x).to.be.approximately(Initial.x, Epsilon)
     expect(before.y).to.be.approximately(Initial.y, Epsilon)
     expect(before.z).to.be.approximately(Initial.z, Epsilon)
     expect(before.w).to.be.approximately(Initial.w, Epsilon)
     // Run and Check the result
     onSessionEnd()
-    const result = localFloor.rotation.get()
+    const result = localFloor.rotation
     expect(result.x).to.be.approximately(Expected.x, Epsilon)
     expect(result.y).to.be.approximately(Expected.y, Epsilon)
     expect(result.z).to.be.approximately(Expected.z, Epsilon)
@@ -257,15 +257,15 @@ describe('onSessionEnd', () => {
     const Initial = new Vector3(41, 42, 43)
     // Set the data as expected
     const localFloor = getMutableComponent(getState(ReferenceSpaceState).localFloorEntity, TransformComponent)
-    localFloor.scale.set(Initial)
+    localFloor.scale = Initial
     // Sanity check before running
-    const before = localFloor.scale.get()
+    const before = localFloor.scale
     expect(before.x).to.be.approximately(Initial.x, Epsilon)
     expect(before.y).to.be.approximately(Initial.y, Epsilon)
     expect(before.z).to.be.approximately(Initial.z, Epsilon)
     // Run and Check the result
     onSessionEnd()
-    const result = localFloor.scale.get()
+    const result = localFloor.scale
     expect(result.x).to.be.approximately(Expected.x, Epsilon)
     expect(result.y).to.be.approximately(Expected.y, Epsilon)
     expect(result.z).to.be.approximately(Expected.z, Epsilon)
@@ -277,15 +277,15 @@ describe('onSessionEnd', () => {
     const Initial = new Vector3(41, 42, 43)
     // Set the data as expected
     const viewer = getMutableComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
-    viewer.scale.set(Initial)
+    viewer.scale = Initial
     // Sanity check before running
-    const before = viewer.scale.get()
+    const before = viewer.scale
     expect(before.x).to.be.approximately(Initial.x, Epsilon)
     expect(before.y).to.be.approximately(Initial.y, Epsilon)
     expect(before.z).to.be.approximately(Initial.z, Epsilon)
     // Run and Check the result
     onSessionEnd()
-    const result = viewer.scale.get()
+    const result = viewer.scale
     expect(result.x).to.be.approximately(Expected.x, Epsilon)
     expect(result.y).to.be.approximately(Expected.y, Epsilon)
     expect(result.z).to.be.approximately(Expected.z, Epsilon)

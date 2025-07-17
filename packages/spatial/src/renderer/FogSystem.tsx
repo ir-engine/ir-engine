@@ -36,7 +36,7 @@ import {
 } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { NO_PROXY, getState } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 import {
   PluginType,
   addOBCPlugin,
@@ -81,10 +81,10 @@ function removeFogShaderPlugin(obj: Mesh<any, MeshStandardMaterial>) {
 function FogGroupReactor(props: { fogEntity: Entity }) {
   const entity = useEntityContext()
   const fogComponent = useComponent(props.fogEntity, FogSettingsComponent)
-  const obj = useComponent(entity, ObjectComponent)?.get(NO_PROXY)
+  const obj = useComponent(entity, ObjectComponent)
 
   useEffect(() => {
-    const customShader = fogComponent.type.value === FogType.Brownian || fogComponent.type.value === FogType.Height
+    const customShader = fogComponent.type === FogType.Brownian || fogComponent.type === FogType.Height
     if (customShader) {
       addFogShaderPlugin(obj as any)
       return () => {
@@ -100,7 +100,7 @@ function FogGroupReactor(props: { fogEntity: Entity }) {
 const FogReactor = () => {
   const entity = useEntityContext()
   const fogComponent = useComponent(entity, FogSettingsComponent)
-  if (fogComponent.type.value !== FogType.Brownian && fogComponent.type.value !== FogType.Height) return null
+  if (fogComponent.type !== FogType.Brownian && fogComponent.type !== FogType.Height) return null
   return (
     <QueryReactor
       ChildEntityReactor={FogGroupReactor}

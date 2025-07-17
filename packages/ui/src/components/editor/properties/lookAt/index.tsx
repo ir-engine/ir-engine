@@ -56,16 +56,16 @@ export const LookAtNodeEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Target" label={t('editor:properties.lookAt.target')}>
         <NodeInput
-          value={lookAtComponent.target.value ?? ('' as EntityID)}
+          value={lookAtComponent.target ?? ('' as EntityID)}
           onRelease={commitProperty(LookAtComponent, 'target')}
           onChange={commitProperty(LookAtComponent, 'target')}
         />
       </InputGroup>
       <InputGroup name="X Axis" label={t('editor:properties.lookAt.xAxis')}>
-        <Checkbox checked={lookAtComponent.xAxis.value} onChange={commitProperty(LookAtComponent, 'xAxis')} />
+        <Checkbox checked={lookAtComponent.xAxis} onChange={commitProperty(LookAtComponent, 'xAxis')} />
       </InputGroup>
       <InputGroup name="Y Axis" label={t('editor:properties.lookAt.yAxis')}>
-        <Checkbox checked={lookAtComponent.yAxis.value} onChange={commitProperty(LookAtComponent, 'yAxis')} />
+        <Checkbox checked={lookAtComponent.yAxis} onChange={commitProperty(LookAtComponent, 'yAxis')} />
       </InputGroup>
     </NodeEditor>
   )

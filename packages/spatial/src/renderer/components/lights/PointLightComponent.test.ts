@@ -163,7 +163,7 @@ describe('PointLightComponent', () => {
       // Run and Check the result
       setComponent(testEntity, PointLightComponent, Expected)
 
-      getMutableComponent(testEntity, PointLightComponent).helperEntity.set(DummyEntity)
+      getMutableComponent(testEntity, PointLightComponent).helperEntity = DummyEntity
       await vi.waitFor(() => {
         const result = getComponent(testEntity, PointLightComponent)
         assertPointLightComponentNotEq(result, PointLightComponentDefaults)

@@ -67,31 +67,31 @@ export const PointLightComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      light.color = new Color(pointLightComponent.color.value)
+      light.color = new Color(pointLightComponent.color)
     }, [pointLightComponent.color])
 
     useEffect(() => {
-      light.intensity = pointLightComponent.intensity.value
+      light.intensity = pointLightComponent.intensity
     }, [pointLightComponent.intensity])
 
     useEffect(() => {
-      light.distance = pointLightComponent.range.value
+      light.distance = pointLightComponent.range
     }, [pointLightComponent.range])
 
     useEffect(() => {
-      light.decay = pointLightComponent.decay.value
+      light.decay = pointLightComponent.decay
     }, [pointLightComponent.decay])
 
     useEffect(() => {
-      light.castShadow = pointLightComponent.castShadow.value
+      light.castShadow = pointLightComponent.castShadow
     }, [pointLightComponent.castShadow])
 
     useEffect(() => {
-      light.shadow.bias = pointLightComponent.shadowBias.value
+      light.shadow.bias = pointLightComponent.shadowBias
     }, [pointLightComponent.shadowBias])
 
     useEffect(() => {
-      light.shadow.radius = pointLightComponent.shadowRadius.value
+      light.shadow.radius = pointLightComponent.shadowRadius
     }, [pointLightComponent.shadowRadius])
 
     useEffect(() => {

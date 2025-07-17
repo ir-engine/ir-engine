@@ -61,13 +61,13 @@ export function useRendererEntity(entity: Entity) {
         return () => {
           if (!unmounted) result.set(UndefinedEntity)
         }
-      }, [tree?.parentEntity?.value, matchesQuery, hasRenderer])
+      }, [tree?.parentEntity, matchesQuery, hasRenderer])
 
       if (matchesQuery) return null
 
-      if (!tree?.parentEntity?.value) return null
+      if (!tree?.parentEntity) return null
 
-      return <ParentSubReactor key={tree.parentEntity.value} entity={tree.parentEntity.value} />
+      return <ParentSubReactor key={tree.parentEntity} entity={tree.parentEntity} />
     }
 
     const root = startReactor(function useQueryReactor() {

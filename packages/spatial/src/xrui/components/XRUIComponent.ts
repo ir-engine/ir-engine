@@ -35,10 +35,9 @@ export const XRUIComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const xruiComponent = useComponent(entity, XRUIComponent)
+    const xrui = useComponent(entity, XRUIComponent)
 
     useLayoutEffect(() => {
-      const xrui = xruiComponent.value
       return () => {
         xrui.destroy()
       }

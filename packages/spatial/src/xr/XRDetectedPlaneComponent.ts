@@ -84,7 +84,7 @@ export const XRDetectedPlaneComponent = defineComponent({
 
     useEffect(() => {
       return () => {
-        component.geometry.value?.dispose()
+        component.geometry?.dispose()
       }
     }, [])
 
@@ -131,12 +131,12 @@ export const XRDetectedPlaneComponent = defineComponent({
       state.planesLastChangedTimes.set(plane, plane.lastChangedTime)
       const geometry = XRDetectedPlaneComponent.createGeometryFromPolygon(plane)
       const planeComponent = getMutableComponent(entity, XRDetectedPlaneComponent)
-      planeComponent.geometry.value?.dispose()
-      planeComponent.shadowMesh.value?.geometry.dispose()
+      planeComponent.geometry?.dispose()
+      planeComponent.shadowMesh?.geometry.dispose()
       const mesh = new Mesh(geometry, shadowMaterial)
       setComponent(entity, MeshComponent, mesh)
-      planeComponent.geometry.set(geometry)
-      planeComponent.shadowMesh.set(mesh)
+      planeComponent.geometry = geometry
+      planeComponent.shadowMesh = mesh
     }
   },
 

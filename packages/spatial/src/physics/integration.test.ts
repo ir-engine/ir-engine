@@ -302,7 +302,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
 
       // Run and Check the results
       // .. Phase 0: Move the child
-      getMutableComponent(testEntity, TransformComponent).position.value.addScalar(ChangeAmount)
+      getMutableComponent(testEntity, TransformComponent).position.addScalar(ChangeAmount)
       // .. Phase 1
       execute.physicsSystem()
       // .. Phase 2
@@ -350,7 +350,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       before.sub(GravityOneFrame)
 
       // Run and Check the results
-      getMutableComponent(testEntity, RigidBodyComponent).position.value.addScalar(ChangeAmount)
+      getMutableComponent(testEntity, RigidBodyComponent).position.addScalar(ChangeAmount)
       // .. Phase 1
       execute.physicsSystem()
       // .. Phase 2
@@ -388,7 +388,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
         for (let id = 0; id < childrenCount; ++id) assert.equal(hasComponent(children[id], TransformComponent), true)
 
         // Run and Check the results
-        getMutableComponent(testEntity, TransformComponent).position.value.addScalar(ChangeAmount)
+        getMutableComponent(testEntity, TransformComponent).position.addScalar(ChangeAmount)
         // .. Phase 1
         execute.physicsSystem()
         // .. Phase 2
@@ -428,7 +428,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
         for (let id = 0; id < childrenCount; ++id) assert.equal(hasComponent(children[id], TransformComponent), true)
 
         // Run and Check the results
-        getMutableComponent(testEntity, TransformComponent).rotation.value.setFromAxisAngle(Axis.Y, ChangeAmount)
+        getMutableComponent(testEntity, TransformComponent).rotation.setFromAxisAngle(Axis.Y, ChangeAmount)
         // .. Phase 1
         execute.physicsSystem()
         // .. Phase 2
@@ -468,8 +468,8 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
         for (let id = 0; id < childrenCount; ++id) assert.equal(hasComponent(children[id], TransformComponent), true)
 
         // Run and Check the results
-        getMutableComponent(testEntity, TransformComponent).scale.set(Initial.scale)
-        getMutableComponent(testEntity, TransformComponent).scale.value.addScalar(ChangeAmount)
+        getMutableComponent(testEntity, TransformComponent).scale.copy(Initial.scale)
+        getMutableComponent(testEntity, TransformComponent).scale.addScalar(ChangeAmount)
         // .. Phase 1
         execute.physicsSystem()
         // .. Phase 2
@@ -552,10 +552,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
 
         // Run and Check the results
         // .. Phase 0
-        getMutableComponent(physicsWorldEntity, TransformComponent).rotation.value.setFromAxisAngle(
-          Axis.Y,
-          ChangeAmount
-        )
+        getMutableComponent(physicsWorldEntity, TransformComponent).rotation.setFromAxisAngle(Axis.Y, ChangeAmount)
         {
           /** @todo This is a BUG. See TransformComponent.getMatrixRelativeToScene */
           TransformComponent.computeTransformMatrix(physicsWorldEntity)
@@ -598,7 +595,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
 
         // Run and Check the results
         // .. Phase 0
-        getMutableComponent(physicsWorldEntity, TransformComponent).scale.value.addScalar(ChangeAmount)
+        getMutableComponent(physicsWorldEntity, TransformComponent).scale.addScalar(ChangeAmount)
         {
           /** @todo This is a BUG. See TransformComponent.getMatrixRelativeToScene */
           TransformComponent.computeTransformMatrix(physicsWorldEntity)

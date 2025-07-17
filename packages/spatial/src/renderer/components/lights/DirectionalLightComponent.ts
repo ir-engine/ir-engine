@@ -64,7 +64,7 @@ export const DirectionalLightComponent = defineComponent({
 
     useEffect(() => {
       setComponent(entity, LightTagComponent)
-      getMutableComponent(entity, DirectionalLightComponent).light.set(light)
+      getMutableComponent(entity, DirectionalLightComponent).light = light
       setComponent(entity, ObjectComponent, light)
 
       return () => {
@@ -73,24 +73,24 @@ export const DirectionalLightComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      light.color.set(directionalLightComponent.color.value)
+      light.color.set(directionalLightComponent.color)
     }, [directionalLightComponent.color])
 
     useEffect(() => {
-      light.intensity = directionalLightComponent.intensity.value
+      light.intensity = directionalLightComponent.intensity
     }, [directionalLightComponent.intensity])
 
     useEffect(() => {
-      light.shadow.camera.far = directionalLightComponent.cameraFar.value
+      light.shadow.camera.far = directionalLightComponent.cameraFar
       light.shadow.camera.updateProjectionMatrix()
     }, [directionalLightComponent.cameraFar])
 
     useEffect(() => {
-      light.shadow.bias = directionalLightComponent.shadowBias.value
+      light.shadow.bias = directionalLightComponent.shadowBias
     }, [directionalLightComponent.shadowBias])
 
     useEffect(() => {
-      light.shadow.radius = directionalLightComponent.shadowRadius.value
+      light.shadow.radius = directionalLightComponent.shadowRadius
     }, [directionalLightComponent.shadowRadius])
 
     useEffect(() => {

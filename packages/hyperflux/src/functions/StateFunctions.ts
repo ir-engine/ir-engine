@@ -35,7 +35,6 @@ import {
 import { Identifiable, identifiable } from '@hookstate/identifiable'
 import type { Object as _Object, Function, String } from 'ts-toolbelt'
 
-import { DeepReadonly } from '../types/DeepReadonly'
 import { ActionQueueHandle, ActionReceptor } from './ActionFunctions'
 import { startReactor } from './ReactorFunctions'
 import { HyperFlux } from './StoreFunctions'
@@ -64,8 +63,10 @@ export const setInitialState = (def: StateDefinition<any, any, any, any>) => {
   const initial = typeof def.initial === 'function' ? (def.initial as any)() : JSON.parse(JSON.stringify(def.initial))
   if (HyperFlux.store.stateMap[def.name]) {
     HyperFlux.store.stateMap[def.name].set(initial)
+    HyperFlux.store.valueMap[def.name] = initial
   } else {
     HyperFlux.store.stateMap[def.name] = hookstate(initial, extend(identifiable(def.name), def.extension))
+    HyperFlux.store.valueMap[def.name] = initial
     if (def.reactor) {
       const reactor = startReactor(def.reactor, `State - ${def.name}`)
       HyperFlux.store.stateReactors[def.name] = reactor
@@ -88,7 +89,7 @@ export function getMutableState<S, I, E, R extends ReceptorMap>(StateDefinition:
 
 export function getState<S, I, E, R extends ReceptorMap>(StateDefinition: StateDefinition<S, I, E, R>) {
   if (!HyperFlux.store.stateMap[StateDefinition.name]) setInitialState(StateDefinition)
-  return HyperFlux.store.stateMap[StateDefinition.name].get(NO_PROXY_STEALTH) as DeepReadonly<S>
+  return HyperFlux.store.valueMap[StateDefinition.name] as S
 }
 
 export type Paths<S> = S extends object

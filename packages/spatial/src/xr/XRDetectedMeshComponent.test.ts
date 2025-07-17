@@ -476,7 +476,7 @@ describe('XRDetectedMeshComponent', () => {
         it.todo('.. should call entityContext.XRDetectedMeshComponent.geometry.dispose', () => {
           const resultSpy = vi.fn()
           setComponent(testEntity, XRDetectedMeshComponent, { geometry: new BoxGeometry() })
-          getMutableComponent(testEntity, XRDetectedMeshComponent).geometry.merge({ dispose: resultSpy })
+          getMutableComponent(testEntity, XRDetectedMeshComponent).geometry.dispose = resultSpy
           expect(resultSpy).not.toHaveBeenCalled()
           setComponent(testEntity, XRDetectedMeshComponent, { geometry: new BoxGeometry() })
           expect(resultSpy).toHaveBeenCalledTimes(1)

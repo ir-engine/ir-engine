@@ -73,10 +73,10 @@ import { ReferenceSpace, XRState } from './XRState'
 export const updateHitTest = (entity: Entity) => {
   const xrFrame = getState(XRState).xrFrame!
   const hitTest = getMutableComponent(entity, XRHitTestComponent)
-  if (!hitTest.source.value) return
+  if (!hitTest.source) return
 
-  const hitTestResults = xrFrame.getHitTestResults(hitTest.source.value)
-  hitTest.results.set(hitTestResults)
+  const hitTestResults = xrFrame.getHitTestResults(hitTest.source)
+  hitTest.results = hitTestResults
 
   if (!hitTestResults?.length) return
 
@@ -287,7 +287,7 @@ const Reactor = () => {
 
     if (scenePlacementMode === 'placed') {
       setVisibleComponent(originAnchorEntity, false)
-      const hitTestResult = hitTest?.results?.value?.[0]
+      const hitTestResult = hitTest?.results?.[0]
       if (hitTestResult) {
         if (!hitTestResult.createAnchor) {
           const xrFrame = getState(XRState).xrFrame

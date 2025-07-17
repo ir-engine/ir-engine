@@ -84,7 +84,7 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
 
   useEffect(() => {
     if (!helperEntityState.value) return
-    setComponent(helperEntityState.value, NameComponent, `${nameComponent?.value ?? parentEntity}-${nameSuffix}`)
+    setComponent(helperEntityState.value, NameComponent, `${nameComponent ?? parentEntity}-${nameSuffix}`)
   }, [helperEntityState.value, nameComponent, enabled])
 
   useEffect(() => {

@@ -73,28 +73,28 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
   const loadedProjects = useState([] as OptionType[])
   const hasRigidBody = useAncestorWithComponents(props.entity, [RigidBodyComponent])
 
-  const errors = ErrorComponent.useComponentErrors(props.entity, GLTFComponent)?.value
+  const errors = ErrorComponent.useComponentErrors(props.entity, GLTFComponent)
   const srcProject = useHookstate(() => {
-    const match = STATIC_ASSET_REGEX.exec(gltfComponent.src.value)
+    const match = STATIC_ASSET_REGEX.exec(gltfComponent.src)
     if (!match?.length) return editorState.projectName!
     const [_, orgName, projectName] = match
     return `${orgName}/${projectName}`
   })
 
   const getRelativePath = useCallback(() => {
-    const relativePath = STATIC_ASSET_REGEX.exec(gltfComponent.src.value)?.[3]
+    const relativePath = STATIC_ASSET_REGEX.exec(gltfComponent.src)?.[3]
     if (!relativePath) {
       return 'assets/new-model'
     } else {
       //return relativePath without file extension
       return relativePath.replace(/\.[^.]*$/, '')
     }
-  }, [gltfComponent.src.value])
+  }, [gltfComponent.src])
 
   const getExportExtension = useCallback(() => {
-    if (!gltfComponent.src.value) return 'gltf'
-    else return gltfComponent.src.value.endsWith('.gltf') ? 'gltf' : 'glb'
-  }, [gltfComponent.src.value])
+    if (!gltfComponent.src) return 'gltf'
+    else return gltfComponent.src.endsWith('.gltf') ? 'gltf' : 'glb'
+  }, [gltfComponent.src])
 
   const srcPath = useHookstate(getRelativePath())
 
@@ -140,7 +140,7 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Model Url" className="flex flex-col gap-y-2" label={t('editor:properties.model.lbl-modelurl')}>
         <ModelInput
-          value={gltfComponent.src.value}
+          value={gltfComponent.src}
           onRelease={(src) => {
             commitProperty(GLTFComponent, 'src')(src)
           }}
@@ -153,18 +153,12 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
 
       <InputGroup name="Camera Occlusion" label={t('editor:properties.model.lbl-cameraOcclusion')}>
-        <Checkbox
-          checked={gltfComponent.cameraOcclusion.value}
-          onChange={commitProperty(GLTFComponent, 'cameraOcclusion')}
-        />
+        <Checkbox checked={gltfComponent.cameraOcclusion} onChange={commitProperty(GLTFComponent, 'cameraOcclusion')} />
       </InputGroup>
       <InputGroup name="Apply Colliders" label={t('editor:properties.model.lbl-applyColliders')}>
-        <Checkbox
-          checked={gltfComponent.applyColliders.value}
-          onChange={commitProperty(GLTFComponent, 'applyColliders')}
-        />
+        <Checkbox checked={gltfComponent.applyColliders} onChange={commitProperty(GLTFComponent, 'applyColliders')} />
       </InputGroup>
-      {(!hasRigidBody && gltfComponent.applyColliders.value && (
+      {(!hasRigidBody && gltfComponent.applyColliders && (
         <>
           <Text className="ml-5 text-red-400">{t('editor:properties.model.lbl-warnRigidBody')}</Text>
           <Button
@@ -186,7 +180,7 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
         <InputGroup name="Shape" label={t('editor:properties.model.lbl-shape')}>
           <SelectInput
             options={shapeTypeOptions}
-            value={gltfComponent.shape.value}
+            value={gltfComponent.shape}
             onChange={commitProperty(GLTFComponent, 'shape')}
           />
         </InputGroup>

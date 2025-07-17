@@ -66,7 +66,7 @@ const execute = () => {
 
   for (const eid of inputsQuery()) {
     if (!getComponent(eid, InputComponent).inputSources.length) continue
-    getMutableComponent(eid, InputComponent).inputSources.set([])
+    getMutableComponent(eid, InputComponent).inputSources = []
   }
 
   const stalePointers: Entity[] = []

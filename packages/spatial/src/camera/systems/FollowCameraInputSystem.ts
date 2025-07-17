@@ -63,21 +63,21 @@ const followCameraModeCycle = [
 
 const onFollowCameraModeCycle = (cameraEntity: Entity) => {
   const follow = getMutableComponent(cameraEntity, FollowCameraComponent)
-  const mode = follow.mode.value
+  const mode = follow.mode
   const currentModeIdx = followCameraModeCycle.includes(mode) ? followCameraModeCycle.indexOf(mode) : 0
   const nextModeIdx = (currentModeIdx + 1) % followCameraModeCycle.length
   const nextMode = followCameraModeCycle[nextModeIdx]
-  follow.mode.set(nextMode)
+  follow.mode = nextMode
 }
 
 const onFollowCameraFirstPerson = (cameraEntity: Entity) => {
   const followComponent = getMutableComponent(cameraEntity, FollowCameraComponent)
-  followComponent.mode.set(FollowCameraMode.FirstPerson)
+  followComponent.mode = FollowCameraMode.FirstPerson
 }
 
 const onFollowCameraShoulderCam = (cameraEntity: Entity) => {
   const follow = getMutableComponent(cameraEntity, FollowCameraComponent)
-  follow.mode.set(FollowCameraMode.ShoulderCam)
+  follow.mode = FollowCameraMode.ShoulderCam
 }
 
 /**

@@ -126,11 +126,11 @@ export const LinkNodeEditor: EditorComponentType = (props) => {
         </InputGroup>
       )} */}
       <InputGroup name="Redirect" label={t('editor:properties.linkComp.lbl-newTab')}>
-        <Checkbox checked={linkComponent.newTab.value} onChange={commitProperty(LinkComponent, 'newTab')} />
+        <Checkbox checked={linkComponent.newTab} onChange={commitProperty(LinkComponent, 'newTab')} />
       </InputGroup>
       <InputGroup name="LinkUrl" label={t('editor:properties.linkComp.lbl-url')}>
         <ControlledStringInput
-          value={linkComponent.url.value}
+          value={linkComponent.url}
           onChange={updateProperty(LinkComponent, 'url')}
           onRelease={commitProperty(LinkComponent, 'url')}
         />

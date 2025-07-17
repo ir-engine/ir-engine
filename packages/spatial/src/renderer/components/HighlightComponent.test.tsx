@@ -254,7 +254,7 @@ describe('HighlightSystem', () => {
       testEntity = createEntity()
       getMutableState(RendererState).usePostProcessing.set(true)
       setComponent(testEntity, SceneComponent)
-      getMutableComponent(rootEntity, RendererComponent).scenes.merge([testEntity])
+      getMutableComponent(rootEntity, RendererComponent).scenes.push(testEntity)
       setComponent(testEntity, PostProcessingComponent, { enabled: true })
       setComponent(testEntity, EntityTreeComponent)
     })

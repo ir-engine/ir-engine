@@ -38,7 +38,6 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { none } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { removeCallback, setCallback } from '../../common/CallbackComponent'
@@ -157,11 +156,10 @@ export const ObjectComponent = defineComponent({
       removeComponent(entity, VisibleComponent)
     })
 
-    component.set(obj)
+    ObjectComponent.valueMap[entity] = obj
   },
 
   onRemove(entity: Entity, component) {
-    component.set(none)
     removeCallback(entity, 'setVisible')
     removeCallback(entity, 'setInvisible')
   },

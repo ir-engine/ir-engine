@@ -75,7 +75,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
       Icon={ImageNodeEditor.iconComponent}
     >
       <InputGroup name="Image Url" label={t('editor:properties.image.lbl-imgURL')}>
-        <DroppableImageInput src={imageComponent.source.value} onBlur={commitProperty(ImageComponent, 'source')} />
+        <DroppableImageInput src={imageComponent.source} onBlur={commitProperty(ImageComponent, 'source')} />
       </InputGroup>
       {errors ? (
         Object.entries(errors).map(([err, message]) => (
@@ -94,21 +94,17 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.image.lbl-fit')}
         info={t('editor:properties.image.lbl-fit-info')}
       >
-        <SelectInput
-          value={imageComponent.fit.value}
-          onChange={commitProperty(ImageComponent, 'fit')}
-          options={fitOptions}
-        />
+        <SelectInput value={imageComponent.fit} onChange={commitProperty(ImageComponent, 'fit')} options={fitOptions} />
       </InputGroup>
 
       <InputGroup name="Aspect Ratio" label={t('editor:properties.image.lbl-aspect-ratio')}>
         <button
           className={twMerge(
             'w-full flex-auto rounded-md  px-10 py-1 ',
-            imageComponent.source.value ? ' bg-surface-1 text-text-primary' : 'bg-surface-2 text-text-inactive'
+            imageComponent.source ? ' bg-surface-1 text-text-primary' : 'bg-surface-2 text-text-inactive'
           )}
           onClick={resizeImageToMatchAspectRatio}
-          disabled={!imageComponent.source.value}
+          disabled={!imageComponent.source}
         >
           {t('editor:properties.image.lbl-match-aspect-ratio')}
         </button>

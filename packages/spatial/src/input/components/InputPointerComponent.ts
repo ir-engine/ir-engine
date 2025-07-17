@@ -77,8 +77,8 @@ export const InputPointerComponent = defineComponent({
     const inputPointerComponent = useComponent(entity, InputPointerComponent)
 
     useImmediateEffect(() => {
-      const pointerId = inputPointerComponent.pointerId.value
-      const cameraEntity = inputPointerComponent.cameraEntity.value
+      const pointerId = inputPointerComponent.pointerId
+      const cameraEntity = inputPointerComponent.cameraEntity
       const pointerHash = InputPointerState.createCameraPointerHash(cameraEntity, pointerId)
 
       getState(InputPointerState).pointers.set(pointerHash, entity)

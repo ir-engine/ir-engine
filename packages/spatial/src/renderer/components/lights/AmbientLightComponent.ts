@@ -57,11 +57,11 @@ export const AmbientLightComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      light.color.set(ambientLightComponent.color.value)
+      light.color.set(ambientLightComponent.color)
     }, [ambientLightComponent.color])
 
     useEffect(() => {
-      light.intensity = ambientLightComponent.intensity.value
+      light.intensity = ambientLightComponent.intensity
     }, [ambientLightComponent.intensity])
 
     return null

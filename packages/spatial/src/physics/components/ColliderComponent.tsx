@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent, useComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
+import { defineComponent, useComponent, useEntityContext, useHasComponent, useOptionalComponent } from '@ir-engine/ecs'
 
 import { useAncestorWithComponents } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -75,17 +75,17 @@ const ColliderReactor = function () {
   const rigidbodyEntity = useAncestorWithComponents(entity, [RigidBodyComponent])
   const rigidbodyComponent = useOptionalComponent(rigidbodyEntity, RigidBodyComponent)
   const physicsWorld = Physics.useWorld(entity)
-  const triggerComponent = useOptionalComponent(entity, TriggerComponent)
+  const triggerComponent = useHasComponent(entity, TriggerComponent)
 
   useLayoutEffect(() => {
-    if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
+    if (!rigidbodyComponent?.initialized || !physicsWorld) return
 
     const colliderDesc = Physics.createColliderDesc(physicsWorld, entity, rigidbodyEntity)
 
     if (!colliderDesc) return
 
     Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity, entity)
-    component.hasCollider.set(true)
+    component.hasCollider = true
 
     return () => {
       if (!physicsWorld) return
@@ -94,7 +94,7 @@ const ColliderReactor = function () {
   }, [
     physicsWorld,
     component.shape,
-    !!rigidbodyComponent?.initialized?.value,
+    !!rigidbodyComponent?.initialized,
     transform.scale,
     component.centerOffset,
     component.boxSize,
@@ -104,7 +104,7 @@ const ColliderReactor = function () {
 
   useLayoutEffect(() => {
     if (!physicsWorld) return
-    Physics.setMass(physicsWorld, entity, component.mass.value)
+    Physics.setMass(physicsWorld, entity, component.mass)
   }, [physicsWorld, component.mass])
 
   // useLayoutEffect(() => {
@@ -113,33 +113,33 @@ const ColliderReactor = function () {
 
   useLayoutEffect(() => {
     if (!physicsWorld) return
-    Physics.setFriction(physicsWorld, entity, component.friction.value)
+    Physics.setFriction(physicsWorld, entity, component.friction)
   }, [physicsWorld, component.friction])
 
   useLayoutEffect(() => {
     if (!physicsWorld) return
-    Physics.setRestitution(physicsWorld, entity, component.restitution.value)
+    Physics.setRestitution(physicsWorld, entity, component.restitution)
   }, [physicsWorld, component.restitution])
 
   useLayoutEffect(() => {
     if (!physicsWorld) return
-    Physics.setCollisionLayer(physicsWorld, entity, component.collisionLayer.value)
+    Physics.setCollisionLayer(physicsWorld, entity, component.collisionLayer)
   }, [physicsWorld, component.collisionLayer])
 
   useLayoutEffect(() => {
     if (!physicsWorld) return
-    Physics.setCollisionMask(physicsWorld, entity, component.collisionMask.value)
+    Physics.setCollisionMask(physicsWorld, entity, component.collisionMask)
   }, [physicsWorld, component.collisionMask])
 
   useLayoutEffect(() => {
-    if (!physicsWorld || !triggerComponent?.value || !component.hasCollider.value) return
+    if (!physicsWorld || !triggerComponent || !component.hasCollider) return
 
     Physics.setTrigger(physicsWorld, entity, true)
 
     return () => {
       Physics.setTrigger(physicsWorld, entity, false)
     }
-  }, [physicsWorld, triggerComponent, component.hasCollider.value])
+  }, [physicsWorld, triggerComponent, component.hasCollider])
 
   useEffect(() => {
     if (!physicsWorld) return
@@ -150,7 +150,7 @@ const ColliderReactor = function () {
     })
     setCallback(entity, 'Enable Collision', () => {
       if (!physicsWorld) return
-      Physics.setCollisionLayer(physicsWorld, entity, component.collisionLayer.value)
+      Physics.setCollisionLayer(physicsWorld, entity, component.collisionLayer)
     })
     return () => {
       removeCallback(entity, 'Disable Collision')

@@ -178,9 +178,9 @@ export const PerformanceState = defineState({
     const renderer = useOptionalComponent(viewerEntity, RendererComponent)
 
     useEffect(() => {
-      if (!renderer?.renderer.value) return
+      if (!renderer?.renderer) return
       PerformanceManager.buildPerformanceState(getComponent(viewerEntity, RendererComponent))
-    }, [!!renderer?.renderer.value])
+    }, [!!renderer?.renderer])
 
     const performanceState = useMutableState(PerformanceState)
     const renderSettings = useMutableState(RenderSettingsState)

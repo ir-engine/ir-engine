@@ -192,7 +192,7 @@ export const EntityArrayBoundary = memo(
       <>
         {props.entities.map((entity) => {
           const layer = LayerComponent.get(entity)
-          const id = LayerComponents[layer].stateMap[entity]?.identifier
+          const id = LayerComponents[layer].counterMap[entity]?.identifier
           return (
             <QueryReactorErrorBoundary key={id}>
               <Suspense fallback={<Suspended {...props} />}>

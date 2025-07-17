@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Engine, getComponent, getOptionalMutableComponent, hasComponent } from '@ir-engine/ecs'
-import { getState, none, useMutableState } from '@ir-engine/hyperflux'
+import { getState, useMutableState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { destroySpatialViewer, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { useEffect, useRef } from 'react'
@@ -83,13 +83,13 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
     const rendererComponent = getOptionalMutableComponent(viewerEntity, RendererComponent)
     if (!rendererComponent) return
 
-    rendererComponent.scenes.merge([originEntity])
+    rendererComponent.scenes.push(originEntity)
 
     return () => {
       if (!Engine.instance) return
       if (!hasComponent(viewerEntity, RendererComponent)) return
-      const index = rendererComponent.scenes.value.indexOf(originEntity)
-      rendererComponent.scenes[index].set(none)
+      const index = rendererComponent.scenes.indexOf(originEntity)
+      rendererComponent.scenes.splice(index, 1)
     }
   }, [viewerEntity, originEntity])
 
@@ -99,13 +99,13 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement> | null) => {
     const rendererComponent = getOptionalMutableComponent(viewerEntity, RendererComponent)
     if (!rendererComponent) return
 
-    rendererComponent.scenes.merge([localFloorEntity])
+    rendererComponent.scenes.push(localFloorEntity)
 
     return () => {
       if (!Engine.instance) return
       if (!hasComponent(viewerEntity, RendererComponent)) return
-      const index = rendererComponent.scenes.value.indexOf(localFloorEntity)
-      rendererComponent.scenes[index].set(none)
+      const index = rendererComponent.scenes.indexOf(localFloorEntity)
+      rendererComponent.scenes.splice(index, 1)
     }
   }, [viewerEntity, localFloorEntity])
 }

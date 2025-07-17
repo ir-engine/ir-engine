@@ -138,7 +138,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, VisibleComponent)
         setComponent(testEntity, BoundingBoxComponent)
         setComponent(testEntity, InputComponent)
-        getMutableComponent(testEntity, BoundingBoxComponent).box.set(box)
+        getMutableComponent(testEntity, BoundingBoxComponent).box = box
 
         const rayOrigin = new Vector3(0, 2, 2)
         const rayDirection = new Vector3(1, 0, 0).normalize()
@@ -173,7 +173,7 @@ describe('ClientInputHeuristics', () => {
           setComponent(box.entity, VisibleComponent)
           setComponent(box.entity, BoundingBoxComponent)
           setComponent(box.entity, InputComponent)
-          getMutableComponent(box.entity, BoundingBoxComponent).box.set(box.box)
+          getMutableComponent(box.entity, BoundingBoxComponent).box = box.box
         }
 
         const rayOrigin = new Vector3()

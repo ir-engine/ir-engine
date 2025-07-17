@@ -66,22 +66,19 @@ const execute = () => {
     const zoom = axes[MouseScroll.VerticalScroll]
 
     const transform = getComponent(cameraEid, TransformComponent)
-    const editorCameraCenter = cameraOrbit.cameraOrbitCenter.value
+    const editorCameraCenter = cameraOrbit.cameraOrbitCenter
     const distance = transform.position.distanceTo(editorCameraCenter)
     const camera = getComponent(cameraEid, CameraComponent)
-    // distance <= cameraOrbit.maximumZoomDistance.value && distance >= cameraOrbit.minimumZoomDistance.value
+    // distance <= cameraOrbit.maximumZoomDistance && distance >= cameraOrbit.minimumZoomDistance
     if (zoom) {
-      delta.set(0, 0, zoom * distance * cameraOrbit.zoomSpeed.value)
+      delta.set(0, 0, zoom * distance * cameraOrbit.zoomSpeed)
       if (delta.length() < distance) {
         delta.applyMatrix3(normalMatrix.getNormalMatrix(camera.matrixWorld))
 
         const newPosition = transform.position.clone().add(delta)
         const newDistance = newPosition.distanceTo(editorCameraCenter)
 
-        if (
-          newDistance >= cameraOrbit.minimumZoomDistance.value &&
-          newDistance <= cameraOrbit.maximumZoomDistance.value
-        ) {
+        if (newDistance >= cameraOrbit.minimumZoomDistance && newDistance <= cameraOrbit.maximumZoomDistance) {
           transform.position.copy(newPosition)
         }
       }
@@ -94,7 +91,7 @@ const execute = () => {
         const distance = transform.position.distanceTo(editorCameraCenter)
         delta
           .set(-movement.x, -movement.y, 0)
-          .multiplyScalar(Math.max(distance, 1) * cameraOrbit.panSpeed.value)
+          .multiplyScalar(Math.max(distance, 1) * cameraOrbit.panSpeed)
           .applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
         transform.position.add(delta)
         editorCameraCenter.add(delta)
@@ -107,8 +104,8 @@ const execute = () => {
       if (movement) {
         delta.copy(transform.position).sub(editorCameraCenter)
         spherical.setFromVector3(delta)
-        spherical.theta -= movement.x * cameraOrbit.orbitSpeed.value
-        spherical.phi += movement.y * cameraOrbit.orbitSpeed.value
+        spherical.theta -= movement.x * cameraOrbit.orbitSpeed
+        spherical.phi += movement.y * cameraOrbit.orbitSpeed
         spherical.makeSafe()
         delta.setFromSpherical(spherical)
         transform.position.copy(editorCameraCenter).add(delta)

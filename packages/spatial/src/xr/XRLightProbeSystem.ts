@@ -133,14 +133,13 @@ const execute = () => {
       DirectionalLightComponent
     )
 
-    directionalLightState.color.set(
-      new Color(
-        lightEstimate.primaryLightIntensity.x / intensityScalar,
-        lightEstimate.primaryLightIntensity.y / intensityScalar,
-        lightEstimate.primaryLightIntensity.z / intensityScalar
-      )
+    directionalLightState.color = new Color(
+      lightEstimate.primaryLightIntensity.x / intensityScalar,
+      lightEstimate.primaryLightIntensity.y / intensityScalar,
+      lightEstimate.primaryLightIntensity.z / intensityScalar
     )
-    directionalLightState.intensity.set(intensityScalar)
+
+    directionalLightState.intensity = intensityScalar
 
     getComponent(xrLightProbeState.directionalLightEntity, TransformComponent).rotation.setFromUnitVectors(
       Vector3_Zero,

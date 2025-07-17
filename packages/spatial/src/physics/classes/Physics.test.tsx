@@ -393,7 +393,7 @@ describe('Physics : Rapier->ECS API', () => {
       }
       /** @description Set the {@link RigidBodyComponent.targetKinematicLerpMultiplier} to 0 for all of the linear interpolation tests */
       beforeEach(() => {
-        getMutableComponent(testEntity, RigidBodyComponent).targetKinematicLerpMultiplier.set(0)
+        getMutableComponent(testEntity, RigidBodyComponent).targetKinematicLerpMultiplier = 0
       })
 
       it('... should apply deterministic linear interpolation to the position of the KinematicBody of the given entity', () => {
@@ -475,7 +475,7 @@ describe('Physics : Rapier->ECS API', () => {
        *  @description Sets the entity's {@link RigidBodyComponent.targetKinematicLerpMultiplier} property to `@param mult`
        *  @returns The `@param mult` itself  */
       function setMultiplier(entity: Entity, mult: number): number {
-        getMutableComponent(entity, RigidBodyComponent).targetKinematicLerpMultiplier.set(mult)
+        getMutableComponent(entity, RigidBodyComponent).targetKinematicLerpMultiplier = mult
         return mult
       }
       /**
@@ -2982,8 +2982,7 @@ describe('Physics : Rapier->ECS API', () => {
         function setDummyCollisionBetween(ent1: Entity, ent2: Entity, hit = DummyHit): void {
           const hits = new Map<Entity, ColliderHitEvent>()
           hits.set(ent2, hit)
-          setComponent(ent1, CollisionComponent)
-          getMutableComponent(ent1, CollisionComponent).set(hits)
+          setComponent(ent1, CollisionComponent, hits)
         }
 
         const ExpectedMaxForce = { x: 4, y: 5, z: 6 }

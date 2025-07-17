@@ -61,7 +61,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
   }
   const addCallback = () => {
     const callbacks = [
-      ...interactableComponent.callbacks.value,
+      ...interactableComponent.callbacks,
       {
         target: 'Self',
         callbackID: ''
@@ -70,7 +70,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
     commitProperties(InteractableComponent, { callbacks: JSON.parse(JSON.stringify(callbacks)) }, [props.entity])
   }
   const removeCallback = (index: number) => {
-    const callbacks = [...interactableComponent.callbacks.value]
+    const callbacks = [...interactableComponent.callbacks]
     callbacks.splice(index, 1)
     commitProperties(InteractableComponent, { callbacks: JSON.parse(JSON.stringify(callbacks)) }, [props.entity])
   }
@@ -84,7 +84,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Label" label={t('editor:properties.interactable.lbl-label')}>
         <StringInput
-          value={interactableComponent.label.value!}
+          value={interactableComponent.label!}
           onChange={updateProperty(InteractableComponent, 'label')}
           onRelease={(value) => updateLabel(value)}
         />
@@ -93,7 +93,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="activationType" label="Activation Type">
         <SelectInput
           key={props.entity}
-          value={interactableComponent.uiActivationType.value}
+          value={interactableComponent.uiActivationType}
           options={[
             { label: 'Hover', value: XRUIActivationType.hover },
             { label: 'Proximity', value: XRUIActivationType.proximity }
@@ -102,28 +102,28 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
 
-      {interactableComponent.uiActivationType.value == XRUIActivationType.proximity && (
+      {interactableComponent.uiActivationType == XRUIActivationType.proximity && (
         <InputGroup
           name="ActivationDistance"
           label={t('editor:properties.interactable.lbl-UIactivationDistance')}
           info={t('editor:properties.interactable.info-UIactivationDistance')}
         >
           <NumericInput
-            value={interactableComponent.activationDistance.value}
+            value={interactableComponent.activationDistance}
             onChange={updateProperty(InteractableComponent, 'activationDistance')}
             onRelease={commitProperty(InteractableComponent, 'activationDistance')}
           />
         </InputGroup>
       )}
 
-      {interactableComponent.uiActivationType.value == XRUIActivationType.proximity && (
+      {interactableComponent.uiActivationType == XRUIActivationType.proximity && (
         <InputGroup
           name="ClickInteract"
           label={t('editor:properties.interactable.lbl-clickInteract')}
           info={t('editor:properties.interactable.info-clickInteract')}
         >
           <Checkbox
-            checked={interactableComponent.clickInteract.value}
+            checked={interactableComponent.clickInteract}
             onChange={commitProperty(InteractableComponent, 'clickInteract')}
           />
         </InputGroup>
@@ -135,14 +135,14 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
 
       <div id={`callback-list`}>
         {interactableComponent.callbacks.map((callback, index) => {
-          const targetOption = callbackQuery.find((o) => o.value === callback.target.value)
+          const targetOption = callbackQuery.find((o) => o.value === callback.target)
           const target = targetOption ? targetOption.value : 'Self'
           return (
             <div key={'callback' + index} className="space-y-2">
               <InputGroup name="Target" label={t('editor:properties.interactable.callbacks.lbl-target')}>
                 <SelectInput
                   key={props.entity}
-                  value={callback.target.value ?? 'Self'}
+                  value={callback.target ?? 'Self'}
                   onChange={commitProperty(InteractableComponent, `callbacks.${index}.target` as any)}
                   options={callbackQuery.filter((o) => o.value !== undefined)}
                   disabled={props.multiEdit}
@@ -152,7 +152,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
               <InputGroup name="CallbackID" label={t('editor:properties.interactable.callbacks.lbl-callbackID')}>
                 {targetOption?.callbacks.length == 0 ? (
                   <StringInput
-                    value={callback.callbackID.value!}
+                    value={callback.callbackID}
                     onChange={updateProperty(InteractableComponent, `callbacks.${index}.callbackID` as any)}
                     onRelease={commitProperty(InteractableComponent, `callbacks.${index}.callbackID` as any)}
                     disabled={props.multiEdit || !target}
@@ -160,7 +160,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
                 ) : (
                   <SelectInput
                     key={props.entity}
-                    value={callback.callbackID.value!}
+                    value={callback.callbackID}
                     onChange={commitProperty(InteractableComponent, `callbacks.${index}.callbackID` as any)}
                     options={
                       targetOption?.callbacks

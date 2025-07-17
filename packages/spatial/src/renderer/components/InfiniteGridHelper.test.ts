@@ -166,7 +166,7 @@ describe('InfiniteGridComponent', () => {
     it('should trigger when component.color changes', async () => {
       const Expected = new Color(0xffffff)
       assert.notDeepEqual(getComponent(testEntity, InfiniteGridComponent).color, Expected)
-      getMutableComponent(testEntity, InfiniteGridComponent).color.set(Expected)
+      getMutableComponent(testEntity, InfiniteGridComponent).color = Expected
       assert.deepEqual(getComponent(testEntity, InfiniteGridComponent).color, Expected)
       // Run and Check the result
 
@@ -179,7 +179,7 @@ describe('InfiniteGridComponent', () => {
     it('should trigger when component.size changes', async () => {
       const Expected = 42
       assert.notEqual(getComponent(testEntity, InfiniteGridComponent).size, Expected)
-      getMutableComponent(testEntity, InfiniteGridComponent).size.set(Expected)
+      getMutableComponent(testEntity, InfiniteGridComponent).size = Expected
       assert.equal(getComponent(testEntity, InfiniteGridComponent).size, Expected)
       // Run and Check the result
 
@@ -194,7 +194,7 @@ describe('InfiniteGridComponent', () => {
       it("... should change the uniforms.uDistance value for the Mesh's ShaderMaterial", async () => {
         const Expected = 42
         assert.notEqual(getComponent(testEntity, InfiniteGridComponent).distance, Expected)
-        getMutableComponent(testEntity, InfiniteGridComponent).distance.set(Expected)
+        getMutableComponent(testEntity, InfiniteGridComponent).distance = Expected
         assert.equal(getComponent(testEntity, InfiniteGridComponent).distance, Expected)
         // Run and Check the result
 
@@ -209,7 +209,7 @@ describe('InfiniteGridComponent', () => {
       it('... should create, for every line color, an entity that has a LineSegmentComponent with name `infinite-grid-helper-line-${i}`', async () => {
         const Names = ['infinite-grid-helper-line-0', 'infinite-grid-helper-line-1', 'infinite-grid-helper-line-2']
         // Trigger the distance change to create line entities
-        getMutableComponent(testEntity, InfiniteGridComponent).distance.set(300)
+        getMutableComponent(testEntity, InfiniteGridComponent).distance = 300
         await vi.waitFor(() => {
           assert.equal(LineQuery().length, LineColors.length)
           for (const entity of LineQuery()) {
@@ -220,7 +220,7 @@ describe('InfiniteGridComponent', () => {
 
       it('... should create, for every line color, an entity that has an EntityTreeComponent whose parent should be the entityContext', async () => {
         // Trigger the distance change to create line entities
-        getMutableComponent(testEntity, InfiniteGridComponent).distance.set(300)
+        getMutableComponent(testEntity, InfiniteGridComponent).distance = 300
         await vi.waitFor(() => {
           assert.equal(LineQuery().length, LineColors.length)
           for (const entity of LineQuery()) {
@@ -231,7 +231,7 @@ describe('InfiniteGridComponent', () => {
 
       it('... should remove all lineEntities of the grid when the InfiniteGridComponent is removed from the entity', async () => {
         // Trigger the distance change to create line entities
-        getMutableComponent(testEntity, InfiniteGridComponent).distance.set(300)
+        getMutableComponent(testEntity, InfiniteGridComponent).distance = 300
         await vi.waitFor(() => {
           assert.equal(LineQuery().length, LineColors.length)
         })

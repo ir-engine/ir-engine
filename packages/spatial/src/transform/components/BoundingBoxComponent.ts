@@ -74,7 +74,7 @@ export const BoundingBoxComponent = defineComponent({
     useEffect(() => {
       const helperEntity = createEntity()
 
-      const helper = new Box3Helper(boundingBox.box.value, boundingBox.color.value)
+      const helper = new Box3Helper(boundingBox.box, boundingBox.color)
       helper.name = `bounding-box-helper-${entity}`
 
       setComponent(helperEntity, NameComponent, helper.name)
@@ -84,7 +84,7 @@ export const BoundingBoxComponent = defineComponent({
 
       setComponent(helperEntity, ObjectComponent, helper)
       ObjectLayerMaskComponent.setLayer(helperEntity, ObjectLayers.NodeHelper)
-      boundingBox.helper.set(helperEntity)
+      boundingBox.helper = helperEntity
 
       TransformComponent.dirty[entity] = 1 //used to dirty trasform and set the appropate bounding box
       updateBoundingBox(entity)
@@ -95,11 +95,11 @@ export const BoundingBoxComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      const helperEntity = boundingBox.helper.value
+      const helperEntity = boundingBox.helper
       if (helperEntity === UndefinedEntity) return
 
       const helperObject = getComponent(helperEntity, ObjectComponent) as any as Box3Helper
-      ;(helperObject.material as any).color.set(boundingBox.color.value)
+      ;(helperObject.material as any).color = boundingBox.color
     }, [boundingBox.helper, boundingBox.color])
 
     return null

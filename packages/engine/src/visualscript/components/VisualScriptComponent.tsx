@@ -64,24 +64,24 @@ export const VisualScriptComponent = defineComponent({
     const entity = useEntityContext()
     const visualScript = useComponent(entity, VisualScriptComponent)
     const visualScriptState = useMutableState(VisualScriptState)
-    const canPlay = visualScript.run.value && !visualScript.disabled.value
-    const registry = visualScriptState.registries[visualScript.domain.value].get({ noproxy: true }) as IRegistry
+    const canPlay = visualScript.run && !visualScript.disabled
+    const registry = visualScriptState.registries[visualScript.domain].get({ noproxy: true }) as IRegistry
     const gltfAncestor = useAncestorWithComponents(entity, [GLTFComponent])
 
     const visualScriptRunner = useVisualScriptRunner({
-      visualScriptJson: visualScript.visualScript.get({ noproxy: true }) as GraphJSON,
+      visualScriptJson: visualScript.visualScript,
       autoRun: canPlay,
       registry
     })
 
     useEffect(() => {
-      if (visualScript.disabled.value) return
-      visualScript.run.value ? visualScriptRunner.play() : visualScriptRunner.pause()
+      if (visualScript.disabled) return
+      visualScript.run ? visualScriptRunner.play() : visualScriptRunner.pause()
     }, [visualScript.run])
 
     useEffect(() => {
-      if (!visualScript.disabled.value) return
-      visualScript.run.set(false)
+      if (!visualScript.disabled) return
+      setComponent(entity, VisualScriptComponent, { run: false })
     }, [visualScript.disabled])
 
     if (!gltfAncestor) return null

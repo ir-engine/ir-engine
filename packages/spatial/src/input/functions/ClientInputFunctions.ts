@@ -139,7 +139,7 @@ export const setInputSources = (startEntity: Entity, inputSources: Entity[]) => 
       sinkEntityUUID === 'Self' ? inputEntity : UUIDComponent.getEntityFromSameSourceByID(inputEntity, sinkEntityUUID)
     if (!hasComponent(sinkEntity, InputComponent)) continue
     const sinkInputComponent = getMutableComponent(sinkEntity, InputComponent)
-    sinkInputComponent.inputSources.merge(inputSources)
+    sinkInputComponent.inputSources.push(...inputSources)
   }
 }
 
@@ -243,7 +243,7 @@ export function assignInputSources(sourceEid: Entity, capturedEntity: Entity) {
   const camera = getOptionalComponent(viewerEntity, CameraComponent)
   sortedIntersections.push({ entity: viewerEntity, distance: camera?.far ?? 1e16 })
 
-  sourceState.intersections.set(sortedIntersections)
+  sourceState.intersections = sortedIntersections
 
   const finalInputSources = Array.from(new Set([sourceEid, ...nonSpatialInputSource()]))
 

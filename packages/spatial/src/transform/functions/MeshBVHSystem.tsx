@@ -50,7 +50,7 @@ import {
   useEntityContext
 } from '@ir-engine/ecs'
 import { getComponent, Layers, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { getMutableState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
@@ -159,7 +159,7 @@ BufferGeometry.prototype.computeBoundsTree = computeBoundsTree
 const MeshBVHReactor = () => {
   const entity = useEntityContext()
   const bvhDebug = useHookstate(getMutableState(RendererState).bvhDebug)
-  const mesh = useComponent(entity, MeshComponent).get(NO_PROXY) as Mesh
+  const mesh = useComponent(entity, MeshComponent) as Mesh
   const hasMeshBVH = useHookstate(false)
 
   useEffect(() => {

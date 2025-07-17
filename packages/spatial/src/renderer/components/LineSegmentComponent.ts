@@ -27,7 +27,7 @@ import { useEffect } from 'react'
 import { BufferGeometry, Color, LineBasicMaterial, LineSegments, Material, NormalBufferAttributes } from 'three'
 
 import { defineComponent, removeComponent, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
-import { NO_PROXY, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
@@ -55,10 +55,7 @@ export const LineSegmentComponent = defineComponent({
     const component = useComponent(entity, LineSegmentComponent)
     const lineSegment = useHookstate(
       () =>
-        new LineSegments(
-          component.geometry.value as BufferGeometry<NormalBufferAttributes>,
-          component.material.value as Material
-        )
+        new LineSegments(component.geometry as BufferGeometry<NormalBufferAttributes>, component.material as Material)
     ).value as LineSegments
 
     useImmediateEffect(() => {
@@ -70,27 +67,27 @@ export const LineSegmentComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      setComponent(entity, NameComponent, component.name.value)
+      setComponent(entity, NameComponent, component.name)
     }, [component.name])
 
     useEffect(() => {
-      ObjectLayerMaskComponent.setMask(entity, component.layerMask.value)
-    }, [component.layerMask.value])
+      ObjectLayerMaskComponent.setMask(entity, component.layerMask)
+    }, [component.layerMask])
 
     useEffect(() => {
-      const color = component.color.value
+      const color = component.color
       if (!color) return
-      const mat = component.material.get(NO_PROXY) as Material & { color?: Color }
+      const mat = component.material as Material & { color?: Color }
       if (mat.color) {
         mat.color.set(color)
         mat.needsUpdate = true
       }
-    }, [component.color.value])
+    }, [component.color])
 
     useEffect(() => {
-      const opacity = component.opacity.value
+      const opacity = component.opacity
       if (opacity === undefined) return
-      const mat = component.material.get(NO_PROXY) as Material & {
+      const mat = component.material as Material & {
         opacity?: number
         transparent?: boolean
       }
@@ -98,24 +95,24 @@ export const LineSegmentComponent = defineComponent({
       mat.transparent = opacity < 1
       mat.opacity = opacity
       mat.needsUpdate = true
-    }, [component.opacity.value])
+    }, [component.opacity])
 
     useEffect(() => {
-      const geo = component.geometry.get(NO_PROXY) as BufferGeometry<NormalBufferAttributes>
+      const geo = component.geometry as BufferGeometry<NormalBufferAttributes>
       lineSegment.geometry = geo
       return () => {
         geo.dispose()
       }
-    }, [component.geometry.value])
+    }, [component.geometry])
 
     useEffect(() => {
-      const mat = component.material.get(NO_PROXY) as Material
+      const mat = component.material as Material
       lineSegment.material = mat
       mat.needsUpdate = true
       return () => {
         mat.dispose()
       }
-    }, [component.material.value])
+    }, [component.material])
 
     return null
   }

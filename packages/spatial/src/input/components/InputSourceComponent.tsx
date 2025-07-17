@@ -83,7 +83,7 @@ export const InputSourceComponent = defineComponent({
         hand: undefined
       } as XRInputSource)
 
-    component.source.set(source)
+    component.source = source
 
     // if we have a real input source, we should add the XRSpaceComponent
     if (args.source?.targetRaySpace) {
@@ -100,11 +100,11 @@ export const InputSourceComponent = defineComponent({
     }
 
     if (args.buttons) {
-      component.buttons.set(args.buttons)
+      component.buttons = args.buttons
     }
 
     if (typeof args.sourceEntity === 'number') {
-      component.sourceEntity.set(args.sourceEntity)
+      component.sourceEntity = args.sourceEntity
     }
   },
 

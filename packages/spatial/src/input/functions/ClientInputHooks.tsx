@@ -228,7 +228,7 @@ export const CanvasInputReactor = () => {
   useEffect(() => {
     if (xrState.session.value) return // pointer input sources are automatically handled by webxr
 
-    const canvas = rendererComponent.canvas.value as HTMLCanvasElement
+    const canvas = rendererComponent.canvas as HTMLCanvasElement
     if (!canvas) return
 
     // Map browser pointer IDs to our emulated pointer IDs

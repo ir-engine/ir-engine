@@ -247,9 +247,9 @@ describe('InputComponent', () => {
       setComponent(one, InputSourceComponent)
       setComponent(two, InputSourceComponent)
       setComponent(three, InputSourceComponent)
-      getMutableComponent(one, InputSourceComponent).buttons.set(Buttons1)
-      getMutableComponent(two, InputSourceComponent).buttons.set(Buttons2)
-      getMutableComponent(three, InputSourceComponent).buttons.set(Buttons3)
+      getMutableComponent(one, InputSourceComponent).buttons = Buttons1
+      getMutableComponent(two, InputSourceComponent).buttons = Buttons2
+      getMutableComponent(three, InputSourceComponent).buttons = Buttons3
       // Create the entity that the InputSink will reference
       const inputEntity = createEntity()
       setComponent(inputEntity, InputComponent, { inputSources: [one, two, three] })
@@ -280,7 +280,7 @@ describe('InputComponent', () => {
       } satisfies InputButtonBindings
 
       // Test case 1: No buttons
-      inputSource.buttons.set({})
+      inputSource.buttons = {}
       let result = InputComponent.getButtons(testEntity, buttonAlias)
 
       assert.ok(!result.SingleButton)
@@ -288,11 +288,11 @@ describe('InputComponent', () => {
 
       // Test case 2: Single button pressed (not consumed)
       ClientInputFunctions.refreshInputs(true)
-      inputSource.buttons.set({
+      inputSource.buttons = {
         [KeyboardButton.KeyA]: createInitialButtonState(testEntity, {
           pressed: true
         })
-      })
+      }
       result = InputComponent.getButtons(testEntity, buttonAlias) // this is only necessary for reseting the type inference
       assert.ok(result.SingleButton?.pressed)
       assert.ok(result.SingleButton?.down, 'SingleButton.down should be true')
@@ -305,9 +305,9 @@ describe('InputComponent', () => {
       assert.ok(!result.ComboButtons)
 
       // Test case 3: Single button touched (should trigger touch state)
-      inputSource.buttons.set({
+      inputSource.buttons = {
         [KeyboardButton.KeyA]: createInitialButtonState(testEntity, { touched: true })
-      })
+      }
       ClientInputFunctions.refreshInputs(true)
       assert.ok(result.SingleButton?.touched)
       assert.ok(!result.SingleButton?.down)
@@ -315,27 +315,27 @@ describe('InputComponent', () => {
 
       // Test case 4: Partial combo pressed (should not trigger)
       ClientInputFunctions.refreshInputs(true)
-      inputSource.buttons.set({
+      inputSource.buttons = {
         [KeyboardButton.KeyA]: createInitialButtonState(testEntity, { down: true })
-      })
+      }
       assert.ok(!result.ComboButtons)
       assert.ok(result.SingleButton?.down)
 
       // Test case 4b: Partial combo with different button (should not trigger)
       ClientInputFunctions.refreshInputs(true)
-      inputSource.buttons.set({
+      inputSource.buttons = {
         [KeyboardButton.KeyB]: createInitialButtonState(testEntity, { down: true })
-      })
+      }
       assert.ok(!result.ComboButtons)
       assert.ok(!result.SingleButton)
 
       // Test case 5: Full combo pressed - first entity context
       ClientInputFunctions.refreshInputs(true)
       result = InputComponent.getButtons(testEntity, buttonAlias)
-      getMutableComponent(testEntity, InputSourceComponent).buttons.set({
+      getMutableComponent(testEntity, InputSourceComponent).buttons = {
         [KeyboardButton.KeyA]: createInitialButtonState(testEntity, { down: true }),
         [KeyboardButton.KeyB]: createInitialButtonState(testEntity, { down: true })
-      })
+      }
       assert.ok(result.ComboButtons?.down)
       assert.ok(result.ComboButtons?.pressed)
       assert.ok(!result.SingleButton, 'SingleButton should not be available, as it is consumed')
@@ -343,10 +343,10 @@ describe('InputComponent', () => {
       assert.ok(!result.KeyB, 'KeyB should not be available, as it is consumed')
 
       ClientInputFunctions.refreshInputs(true)
-      getMutableComponent(testEntity, InputSourceComponent).buttons.set({
+      getMutableComponent(testEntity, InputSourceComponent).buttons = {
         [KeyboardButton.KeyA]: createInitialButtonState(testEntity, { down: true }),
         [KeyboardButton.KeyB]: createInitialButtonState(testEntity, { down: true })
-      })
+      }
       result = InputComponent.getButtons(testEntity, buttonAlias)
       assert.ok(result.SingleButton?.down)
       assert.ok(!result.KeyA, 'KeyA should not be available, as it is consumed by the alias')
@@ -370,10 +370,10 @@ describe('InputComponent', () => {
       // Test case 6: Full combo with mixed states
       ClientInputFunctions.refreshInputs(true)
       result = InputComponent.getButtons(testEntity, buttonAlias)
-      getMutableComponent(testEntity, InputSourceComponent).buttons.set({
+      getMutableComponent(testEntity, InputSourceComponent).buttons = {
         [KeyboardButton.KeyA]: createInitialButtonState(testEntity, { down: true, pressed: true }),
         [KeyboardButton.KeyB]: createInitialButtonState(testEntity, { down: true, touched: true })
-      })
+      }
       assert.ok(result.ComboButtons?.down)
       assert.ok(result.ComboButtons?.pressed)
       assert.ok(result.ComboButtons?.touched)
@@ -381,20 +381,20 @@ describe('InputComponent', () => {
       // Test case 7: Full combo with dragging/rotating states
       ClientInputFunctions.refreshInputs(true)
       result = InputComponent.getButtons(testEntity, buttonAlias)
-      getMutableComponent(testEntity, InputSourceComponent).buttons.set({
+      getMutableComponent(testEntity, InputSourceComponent).buttons = {
         [KeyboardButton.KeyA]: createInitialButtonState(testEntity, { down: true, dragging: true }),
         [KeyboardButton.KeyB]: createInitialButtonState(testEntity, { down: true, rotating: true })
-      })
+      }
       assert.ok(result.ComboButtons?.down)
       assert.ok(result.ComboButtons?.dragging)
       assert.ok(result.ComboButtons?.rotating)
 
       // Test case 8: Full combo with different values
       ClientInputFunctions.refreshInputs(true)
-      getMutableComponent(testEntity, InputSourceComponent).buttons.set({
+      getMutableComponent(testEntity, InputSourceComponent).buttons = {
         [KeyboardButton.KeyA]: createInitialButtonState(testEntity, { down: true, value: 0.5 }),
         [KeyboardButton.KeyB]: createInitialButtonState(testEntity, { down: true, value: 0.8 })
-      })
+      }
       assert.ok(result.ComboButtons?.down)
       assert.equal(result.ComboButtons?.value, 0.8, 'Combo should use max value from all buttons')
     })
@@ -429,7 +429,7 @@ describe('InputComponent', () => {
       // Set up input source components
       setComponent(one, InputSourceComponent)
       setComponent(two, InputSourceComponent)
-      getMutableComponent(one, InputSourceComponent).source.set({
+      getMutableComponent(one, InputSourceComponent).source = {
         handedness: 'none',
         targetRayMode: 'screen',
         gripSpace: undefined,
@@ -446,9 +446,9 @@ describe('InputComponent', () => {
         } as unknown as Gamepad,
         profiles: [],
         hand: undefined
-      } as unknown as XRInputSource)
+      } as unknown as XRInputSource
 
-      getMutableComponent(two, InputSourceComponent).source.set({
+      getMutableComponent(two, InputSourceComponent).source = {
         handedness: 'none',
         targetRayMode: 'screen',
         gripSpace: undefined,
@@ -465,7 +465,7 @@ describe('InputComponent', () => {
         } as unknown as Gamepad,
         profiles: [],
         hand: undefined
-      } as unknown as XRInputSource)
+      } as unknown as XRInputSource
 
       const inputEntity = createEntity()
       setComponent(inputEntity, InputComponent, { inputSources: [one, two] })
@@ -473,7 +473,7 @@ describe('InputComponent', () => {
       // Create an inputSink entity that holds entity source one
       const sinkEntity = createEntity()
       setComponent(sinkEntity, InputSinkComponent)
-      getMutableComponent(sinkEntity, InputSinkComponent).inputEntity.set(inputEntity)
+      getMutableComponent(sinkEntity, InputSinkComponent).inputEntity = inputEntity
 
       // Set the child entity as a child of the sink
       const childEntity = createEntity()
@@ -507,12 +507,12 @@ describe('InputComponent', () => {
 
       // Test case 2: Add button state to InputSourceComponent
       ClientInputFunctions.refreshInputs(true)
-      inputSource.buttons.set({
+      inputSource.buttons = {
         [MouseButton.PrimaryClick]: createInitialButtonState(testEntity, {
           down: true,
           pressed: true
         })
-      })
+      }
 
       // Get buttons again - should see the new button state
       result = InputComponent.getButtons(testEntity, DefaultButtonBindings)
@@ -522,7 +522,7 @@ describe('InputComponent', () => {
 
       // Test case 3: Remove button state from InputSourceComponent
       ClientInputFunctions.refreshInputs(true)
-      inputSource.buttons.set({})
+      inputSource.buttons = {}
 
       // Get buttons again - should not see the button anymore
       result = InputComponent.getButtons(testEntity, DefaultButtonBindings)
@@ -543,12 +543,12 @@ describe('InputComponent', () => {
 
       // Add button state to InputSourceComponent
       ClientInputFunctions.refreshInputs(true)
-      inputSource.buttons.set({
+      inputSource.buttons = {
         [MouseButton.PrimaryClick]: createInitialButtonState(inputSourceEntity, {
           down: true,
           pressed: true
         })
-      })
+      }
 
       // First entity accesses the button - should consume it
       let result1 = InputComponent.getButtons(entity1, DefaultButtonBindings)
@@ -600,7 +600,7 @@ describe('InputComponent', () => {
       // Set the testEntity input sources
       const inputSourceEntity = createEntity()
       setComponent(inputSourceEntity, InputSourceComponent)
-      getMutableComponent(testEntity, InputComponent).inputSources.set([inputSourceEntity])
+      getMutableComponent(testEntity, InputComponent).inputSources = [inputSourceEntity]
 
       // Extract the useExecute system out of the global list
       const list = Array.from(SystemDefinitions.entries())
@@ -626,7 +626,7 @@ describe('InputComponent', () => {
       await vi.waitFor(() => {
         assert.equal(effectSpy.callCount, 2)
       })
-      getMutableComponent(testEntity, InputComponent).inputSources.set([])
+      getMutableComponent(testEntity, InputComponent).inputSources = []
       syst.execute()
 
       // Check the spies and the list of sources after running the system and the reactor
