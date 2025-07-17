@@ -441,6 +441,23 @@ const RendererShadowReactor = () => {
 const reactor = () => {
   const useShadows = useShadowsEnabled()
 
+  return (
+    <>
+      {useShadows ? (
+        <QueryReactor
+          key={'renderSettingsQueryReactor'}
+          Components={[RenderSettingsComponent]}
+          ChildEntityReactor={ShadowSystemReactors.RenderSettingsQueryReactor}
+        />
+      ) : (
+        <DropShadowParentReactor />
+      )}
+      <QueryReactor Components={[RendererComponent]} ChildEntityReactor={ShadowSystemReactors.RendererShadowReactor} />
+    </>
+  )
+}
+
+const DropShadowParentReactor = () => {
   const [shadowTexture] = useTexture(
     `${getState(DomainConfigState).cloudDomain}/projects/ir-engine/default-project/assets/drop-shadow.ktx2`
   )
@@ -451,24 +468,13 @@ const reactor = () => {
     _shadowMaterial.needsUpdate = true
   }, [shadowTexture])
 
-  return (
-    <>
-      {useShadows ? (
-        <QueryReactor
-          key={'renderSettingsQueryReactor'}
-          Components={[RenderSettingsComponent]}
-          ChildEntityReactor={ShadowSystemReactors.RenderSettingsQueryReactor}
-        />
-      ) : shadowTexture ? (
-        <QueryReactor
-          key={'dropShadowReactor'}
-          Components={[VisibleComponent, ShadowComponent]}
-          ChildEntityReactor={ShadowSystemReactors.DropShadowReactor}
-        />
-      ) : null}
-      <QueryReactor Components={[RendererComponent]} ChildEntityReactor={ShadowSystemReactors.RendererShadowReactor} />
-    </>
-  )
+  return shadowTexture ? (
+    <QueryReactor
+      key={'dropShadowReactor'}
+      Components={[VisibleComponent, ShadowComponent]}
+      ChildEntityReactor={ShadowSystemReactors.DropShadowReactor}
+    />
+  ) : null
 }
 
 export const ShadowSystem = defineSystem({

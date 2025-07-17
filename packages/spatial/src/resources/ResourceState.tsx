@@ -45,14 +45,22 @@ import {
   UUIDComponent,
   getAncestorWithComponents,
   getAuthoringCounterpart,
-  getComponent,
   getOptionalComponent,
   hasComponent,
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
 
-import { NO_PROXY, State, defineState, getMutableState, getState, none, useMutableState } from '@ir-engine/hyperflux'
+import {
+  NO_PROXY,
+  State,
+  defineState,
+  getMutableState,
+  getState,
+  isClient,
+  none,
+  useMutableState
+} from '@ir-engine/hyperflux'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 
 import React, { useEffect } from 'react'
@@ -119,6 +127,7 @@ export type ResourceAssetType =
 
 type BaseMetadata = {
   size?: number
+  willBeDiscarded?: boolean
   discarded?: boolean
   onGPU?: boolean
 }
@@ -144,6 +153,94 @@ export type Resource = {
 }
 
 //#region budget checking functions
+
+const MB = 1 << 20
+
+const getTotalAvailableHeapMemoryMB = () => {
+  if (!isClient) return 4096
+
+  //@ts-ignore
+  const memory = performance.memory
+  if (memory) {
+    return Math.floor(memory.jsHeapSizeLimit / MB)
+  }
+
+  // 128MB chunk size
+  const stepSize = 128 * MB
+  const stepsArr = [] as Uint8Array[]
+
+  // Check up to 4GB
+  for (let i = 0; i < 32; i++) {
+    try {
+      const arr = new Uint8Array(stepSize)
+      arr.fill(255)
+      stepsArr.push(arr)
+    } catch (e) {
+      break
+    }
+  }
+
+  return Math.floor((stepsArr.length * stepSize) / MB)
+}
+
+const getTotalUsedHeapMemoryMB = () => {
+  const resourceState = getState(ResourceState)
+
+  const heapMemory = Object.entries(resourceState.resources).reduce((acc, [key, val]) => {
+    if (val.metadata?.discarded || !val.metadata?.size) return acc
+    acc += val.metadata.size
+    return acc
+  }, 0)
+
+  return heapMemory / MB
+}
+
+const getCurrentAvailableHeapMemoryMB = () => {
+  const resourceState = getState(ResourceState)
+
+  const used = getTotalUsedHeapMemoryMB()
+  const available = resourceState.totalAvailableHeapMemoryMB - used
+  return available
+}
+
+const getResourcesAwaitingDiscardCount = () => {
+  const resourceState = getState(ResourceState)
+
+  const count = Object.entries(resourceState.resources).reduce((acc, [key, val]) => {
+    if (val.metadata?.willBeDiscarded && !val.metadata?.discarded) acc += 1
+    return acc
+  }, 0)
+
+  return count
+}
+
+const waitForAvailableHeapMemory = (minAvailableMB: number) => {
+  return new Promise((resolve, reject) => {
+    const shouldWait = () => {
+      const assetsAwaitingDiscard = ResourceState.budgets.getResourcesAwaitingDiscardCount()
+      const availableHeap = ResourceState.budgets.getCurrentAvailableHeapMemoryMB()
+      return assetsAwaitingDiscard > 0 && availableHeap < minAvailableMB
+    }
+
+    if (!shouldWait()) {
+      resolve(undefined)
+      return
+    }
+
+    ResourceState.debugLog('ResourceState:waitForAvailableHeapMemory waiting for asset disposal')
+    const listener = () => {
+      if (!shouldWait()) {
+        ResourceState.debugLog(
+          'ResourceState:waitForAvailableHeapMemory memory requirements met or nothing left to wait for'
+        )
+        ResourceState.deregisterAssetDiscardListener(listener)
+        resolve(undefined)
+      }
+    }
+    ResourceState.registerAssetDiscardListener(listener)
+  })
+}
+
 const getTotalSizeOfResources = () => {
   let size = 0
   const resources = getState(ResourceState).resources
@@ -288,15 +385,20 @@ const resourceCallbacks = {
     ) => {
       if (!asset.image) return
 
-      resource.metadata.merge({ onGPU: false, discarded: false })
+      const viewer = getState(ReferenceSpaceState).viewerEntity
+      const renderer = getOptionalComponent(viewer, RendererComponent)
+      const gl = renderer?.renderContext as WebGL2RenderingContext | undefined
+      const shouldDiscard = discardUponUpload && typeof gl?.fenceSync === 'function'
+
+      resource.metadata.merge({ onGPU: false, discarded: false, willBeDiscarded: shouldDiscard })
       asset.onUpdate = () => {
-        if (!resource?.value?.metadata) return
+        if (!resource?.value?.metadata) {
+          assetDiscarded()
+          return
+        }
         resource.metadata.merge({ onGPU: true, discarded: false })
         setTimeout(() => {
-          const viewer = getState(ReferenceSpaceState).viewerEntity
-          const renderer = getComponent(viewer, RendererComponent)
-          const gl = renderer.renderContext as WebGL2RenderingContext
-          if (discardUponUpload && typeof gl.fenceSync === 'function') {
+          if (shouldDiscard) {
             const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)
             if (sync) {
               gl.flush()
@@ -310,8 +412,8 @@ const resourceCallbacks = {
                   asset
                     .offloadTextureData()
                     .then(() => {
-                      if (!resource?.value?.metadata) return
-                      resource.metadata.merge({ onGPU: true, discarded: true })
+                      resource?.metadata?.merge({ onGPU: true, discarded: true })
+                      assetDiscarded()
                     })
                     .catch((err) => {
                       console.error(err)
@@ -715,13 +817,22 @@ const getAllResourcesOfType = (type: ResourceType) => {
   return result
 }
 
+const assetDiscarded = () => {
+  const resourceState = getMutableState(ResourceState)
+  for (const listener of resourceState.onAssetDiscardListeners.get(NO_PROXY)) {
+    listener()
+  }
+}
+
 export const ResourceState = defineState({
   name: 'ResourceState',
 
   initial: () => ({
+    totalAvailableHeapMemoryMB: getTotalAvailableHeapMemoryMB(),
     resources: {} as Record<string, Resource>,
     totalVertexCount: 0,
     totalBufferCount: 0,
+    onAssetDiscardListeners: [] as (() => void)[],
     debug: false
   }),
 
@@ -734,6 +845,16 @@ export const ResourceState = defineState({
 
   getAllResourcesOfType,
 
+  registerAssetDiscardListener: (listener: () => void) => {
+    const resourceState = getMutableState(ResourceState)
+    resourceState.onAssetDiscardListeners.merge([listener])
+  },
+
+  deregisterAssetDiscardListener: (listener: () => void) => {
+    const resourceState = getMutableState(ResourceState)
+    resourceState.onAssetDiscardListeners.set((prev) => prev.filter((l) => l !== listener))
+  },
+
   resourceCallbacks,
   useEntityResource,
   addEntityResource,
@@ -741,6 +862,10 @@ export const ResourceState = defineState({
   getResourceID,
   checkBudgets,
   budgets: {
+    getTotalUsedHeapMemoryMB,
+    getCurrentAvailableHeapMemoryMB,
+    getResourcesAwaitingDiscardCount,
+    waitForAvailableHeapMemory,
     getTotalSizeOfResources,
     getTotalBufferSize,
     getTotalVertexCount,

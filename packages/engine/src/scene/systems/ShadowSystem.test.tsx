@@ -1734,6 +1734,8 @@ describe('ShadowSystem', async () => {
         const Expected = (await getTextureAsync(textureURL))[0]
         const Initial = ShadowSystemData._shadowMaterial.map
 
+        getMutableState(RendererState).useShadows.set(false)
+
         const previous = Initial
         const rendererEntity = defineQuery([RendererComponent])()[0]
         const Reactor = () => {
@@ -1786,6 +1788,8 @@ describe('ShadowSystem', async () => {
     })
 
     it('should call RenderSettingsQueryReactor once for every entity that has a RenderSettingsComponent when useShadowsEnabled is truthy', async () => {
+      getMutableState(RendererState).useShadows.set(true)
+
       const renderSettingsEntity = createEntity()
       setComponent(renderSettingsEntity, RenderSettingsComponent)
       const rendererEntity = defineQuery([RendererComponent])()[0]

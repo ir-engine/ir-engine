@@ -40,6 +40,7 @@ import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { createTestGLTFEntity, rings_gltf } from '../../../tests/avatar/mockAnimatedAvatar'
 import { startEngineReactor } from '../../../tests/startEngineReactor'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { waitForScene } from '../../gltf/GLTFLoader.test'
 import { LoopAnimationComponent } from './LoopAnimationComponent'
 
 describe('LoopAnimationComponent', () => {
@@ -64,12 +65,7 @@ describe('LoopAnimationComponent', () => {
       })
       setComponent(entity, GLTFComponent, { src: rings_gltf })
 
-      await vi.waitFor(
-        () => {
-          return GLTFComponent.isSceneLoaded(entity)
-        },
-        { timeout: 20000, interval: 100 }
-      )
+      await waitForScene(entity)
 
       setComponent(entity, LoopAnimationComponent, {
         activeClipIndex: 0
@@ -91,12 +87,7 @@ describe('LoopAnimationComponent', () => {
       })
       setComponent(entity, GLTFComponent, { src: rings_gltf })
 
-      await vi.waitFor(
-        () => {
-          return GLTFComponent.isSceneLoaded(entity)
-        },
-        { timeout: 20000 }
-      )
+      await waitForScene(entity)
 
       setComponent(entity, LoopAnimationComponent, {
         activeClipIndex: 0
@@ -118,12 +109,7 @@ describe('LoopAnimationComponent', () => {
       })
       setComponent(entity, GLTFComponent, { src: rings_gltf })
 
-      await vi.waitFor(
-        () => {
-          return GLTFComponent.isSceneLoaded(entity)
-        },
-        { timeout: 20000 }
-      )
+      await waitForScene(entity)
 
       setComponent(entity, LoopAnimationComponent, {
         activeClipIndex: 0
@@ -160,12 +146,7 @@ describe('LoopAnimationComponent', () => {
       })
       setComponent(entity, GLTFComponent, { src: rings_gltf })
 
-      await vi.waitFor(
-        () => {
-          return GLTFComponent.isSceneLoaded(entity)
-        },
-        { timeout: 20000 }
-      )
+      await waitForScene(entity)
 
       setComponent(entity, LoopAnimationComponent, {
         activeClipIndex: 0

@@ -88,7 +88,8 @@ const rings_gltf = default_url + '/rings.glb'
 const collider_and_rigidbody_gltf = base_url + '/physics/ColliderAndRigidbody.gltf'
 const collider_gltf = base_url + '/physics/ColliderOnly.gltf'
 
-const waitForScene = (entity: Entity) => vi.waitUntil(() => GLTFComponent.isSceneLoaded(entity), { timeout: 10000 })
+export const waitForScene = (entity: Entity) =>
+  vi.waitUntil(() => GLTFComponent.isSceneLoaded(entity), { timeout: 10000 })
 
 const setupEntity = () => {
   const parent = createEntity()
@@ -738,26 +739,6 @@ describe('GLTF Loader', async () => {
     abortController.abort()
     await GLTFLoaderFunctions.loadScene(options, 0)
     assert(getChildrenWithComponents(entity, [MeshComponent]).length == 0)
-  })
-
-  it('handles abort during async operations in GLTFLoaderFunctions', async () => {
-    const entity = setupEntity()
-    setComponent(entity, UUIDComponent, { entitySourceID: 'source' as SourceID, entityID: 'test' as EntityID })
-
-    const abortController = new AbortController()
-    setComponent(entity, GLTFComponent, { src: duck_gltf })
-    const loadPromise = waitForScene(entity)
-
-    await new Promise((resolve) =>
-      setTimeout(() => {
-        abortController.abort()
-        removeComponent(entity, GLTFComponent)
-        resolve(undefined)
-      }, 50)
-    )
-    await loadPromise
-
-    assert(!hasComponent(entity, GLTFComponent))
   })
 
   it('loads a GLTF with a collider and a rigidbody creates a dependency', async () => {

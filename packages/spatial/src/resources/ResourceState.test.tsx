@@ -147,6 +147,16 @@ describe('ResourceState', () => {
 
         assert.equal(Object.keys(resources).length, 0)
       })
+
+      it('should allow you to register and deregister asset discard listeners', () => {
+        getState(ResourceState)
+
+        const spy = sinon.spy()
+        ResourceState.registerAssetDiscardListener(spy)
+        assert.equal(getState(ResourceState).onAssetDiscardListeners.length, 1)
+        ResourceState.deregisterAssetDiscardListener(spy)
+        assert.equal(getState(ResourceState).onAssetDiscardListeners.length, 0)
+      })
     })
   })
 })
