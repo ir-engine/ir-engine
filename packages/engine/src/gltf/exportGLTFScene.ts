@@ -37,7 +37,6 @@ import {
   getOptionalComponent,
   hasComponent,
   LayerComponent,
-  Layers,
   serializeComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, SourceID } from '@ir-engine/ecs/src/Entity'
@@ -1338,7 +1337,7 @@ const exportAnimations = async (entity: Entity, gltf: GLTF.IGLTF, context: GLTFS
         }
       }
 
-      const targetEntity = UUIDComponent.getEntityByUUID(getEntityUUIDFromTrack(track), Layers.Authoring)
+      const targetEntity = UUIDComponent.getEntityByUUID(getEntityUUIDFromTrack(track), LayerComponent.get(entity))
       const targetNode = await exportEntity(targetEntity, gltf, context)
       if (typeof targetNode === 'number') {
         channelDef.target.node = targetNode

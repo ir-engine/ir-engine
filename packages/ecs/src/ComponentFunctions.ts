@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright 2021-2025 
+All portions of the code written by the Infinite Reality Engine team are Copyright 2021-2025
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -858,7 +858,7 @@ function createPropagationArgsNumber<C extends Component>(
     if (LayerComponent.get(referencedEntity) === linkedLayer) return referencedEntity
 
     // otherwise return the linked entity
-    return getComponent(referencedEntity, LayerComponents[layer]).relations[linkedLayer]
+    return getComponent(referencedEntity, LayerComponents[layer]).relations[linkedLayer] ?? referencedEntity
   } else {
     return obj
   }
@@ -1297,13 +1297,107 @@ export function getSimulationCounterpart(entity: Entity) {
   }
   const relations = LayerFunctions.getLayerRelationsEntities(entity)
   if (!relations) return UndefinedEntity
-  const entityLayer = LayerComponent.get(entity)
   for (const [linkedLayer, linkedEntity] of relations) {
     if (linkedLayer === Layers.Simulation) {
       return linkedEntity
     }
   }
   return UndefinedEntity
+}
+
+/**
+ * Creates authoring entities for existing simulation entities.
+ * This is used for the dynamic authoring workflow where simulation entities
+ * are loaded first and then authoring entities are created on demand.
+ *
+ * @param simulationEntities The simulation entities to create an authoring counterparts for
+ * @returns The new authoring entities
+ */
+export function loadEntitiesIntoAuthoring(simulationEntities: Entity[]) {
+  const authoringEntities = [] as Entity[]
+  const refs = {} as Record<Entity, Entity> // simulationEntity -> authoringEntity
+  for (const simulationEntity of simulationEntities) {
+    if (LayerComponent.get(simulationEntity) !== Layers.Simulation) {
+      throw new Error('loadEntitiesIntoAuthoring: entity must be a simulation entity')
+    }
+
+    const existingAuthoringEntity = getAuthoringCounterpart(simulationEntity)
+    if (existingAuthoringEntity !== UndefinedEntity) {
+      refs[simulationEntity] = existingAuthoringEntity
+      authoringEntities.push(existingAuthoringEntity)
+      continue
+    }
+
+    // Create a new authoring entity
+    const authoringEntity = createEntity(Layers.Authoring)
+
+    // Set up the relation from authoring to simulation
+    const authoringLayerComponent = getComponent(authoringEntity, LayerComponents[Layers.Authoring])
+    authoringLayerComponent.relations[Layers.Simulation] = simulationEntity
+
+    // additionally, set up the relation from simulation to authoring
+    const simulationLayerComponent = getComponent(simulationEntity, LayerComponents[Layers.Simulation])
+    simulationLayerComponent.relations[Layers.Authoring] = authoringEntity
+
+    refs[simulationEntity] = authoringEntity
+    authoringEntities.push(authoringEntity)
+  }
+
+  for (const simulationEntity of simulationEntities) {
+    const authoringEntity = refs[simulationEntity]
+    const components = getAllComponents(simulationEntity) as ComponentType<any>[]
+    for (const component of components) {
+      if (component === LayerComponent || LayerComponents.includes(component)) continue
+      // const componentData = getComponent(simulationEntity, component)
+      // setComponent(authoringEntity, component, componentData)
+
+      const newArgs = LayerFunctions.createLayerPropagationArgs(simulationEntity, Layers.Authoring, component)
+      setComponent(authoringEntity, component, newArgs)
+    }
+  }
+
+  // Set up the backward references after all components have been copied such that they are not instantly propagated
+  for (const [simulationEntity, authoringEntity] of Object.entries(refs)) {
+    // Set up the backward reference
+    LayerComponents[Layers.Simulation].refs[simulationEntity] = authoringEntity
+  }
+
+  return authoringEntities
+}
+
+/**
+ * Unloads entities from the authoring layer while keeping the simulation layer intact.
+ * This is used for the dynamic authoring workflow.
+ *
+ * @param authoringEntites The authoring entities to unload
+ */
+export function unloadEntitiesFromAuthoring(authoringEntities: Entity[]) {
+  for (const authoringEntity of authoringEntities) {
+    if (LayerComponent.get(authoringEntity) !== Layers.Authoring) {
+      throw new Error('unloadEntitiesFromAuthoring: entity must be an authoring entity')
+    }
+
+    const simulationEntity = getSimulationCounterpart(authoringEntity)
+    if (simulationEntity === UndefinedEntity) {
+      throw new Error('unloadEntitiesFromAuthoring: entity has no simulation counterpart')
+    }
+
+    // Remove the backward reference
+    delete LayerComponents[Layers.Simulation].refs[simulationEntity]
+
+    // Break the relation to prevent propagation of removal
+    const authoringLayerComponent = getMutableComponent(authoringEntity, LayerComponents[Layers.Authoring])
+    authoringLayerComponent.relations.merge({ [Layers.Simulation]: UndefinedEntity })
+
+    for (const component of getAllComponents(authoringEntity)) {
+      if (component === LayerComponent || LayerComponents.includes(component as any)) continue
+      removeComponent(authoringEntity, component as any)
+    }
+
+    removeComponent(authoringEntity, LayerComponent)
+
+    _markEntityForRemoval(authoringEntity)
+  }
 }
 
 /**

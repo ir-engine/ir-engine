@@ -31,7 +31,6 @@ import {
   EntityArrayBoundary,
   EntityID,
   EntityTreeComponent,
-  LayerComponent,
   LayerComponents,
   LayerID,
   Layers,
@@ -41,8 +40,10 @@ import {
   UndefinedEntity,
   createEntity,
   defineSystem,
+  getAuthoringCounterpart,
   getComponent,
   getMutableComponent,
+  getSimulationCounterpart,
   hasComponent,
   removeEntity,
   setComponent,
@@ -153,12 +154,27 @@ export const AssetState = defineState({
   }
 })
 
+const filterNoAuthoringEntityOrNotLoaded = (entity: Entity) => {
+  const authoringEntity = getAuthoringCounterpart(entity)
+  return !authoringEntity || GLTFComponent.isSceneLoaded(entity)
+}
+
+/**
+ * To support dynamic authoring, we need to ignore entities that are already loaded in the simulation layer
+ */
+const filterSimulationEntityAlreadyLoaded = (authoringEntity: Entity) => {
+  const simulationEntity = getSimulationCounterpart(authoringEntity)
+  return !GLTFComponent.isSceneLoaded(simulationEntity)
+}
+
 export const GLTFLoadSystem = defineSystem({
   uuid: 'ee.engine.gltf.GLTFLoadSystem',
   insert: { after: PresentationSystemGroup },
   reactor: () => {
-    const gltfSimulationEntities = useQuery([GLTFComponent]).filter((e) => !LayerComponent.hasUpstreamEntity(e))
-    const gltfAuthoringEntities = useQuery([GLTFComponent], Layers.Authoring)
+    const gltfSimulationEntities = useQuery([GLTFComponent]).filter(filterNoAuthoringEntityOrNotLoaded)
+    const gltfAuthoringEntities = useQuery([GLTFComponent], Layers.Authoring).filter(
+      filterSimulationEntityAlreadyLoaded
+    )
     const gltfEntities = [...gltfSimulationEntities, ...gltfAuthoringEntities]
     return <EntityArrayBoundary entities={gltfEntities} ChildEntityReactor={GLTFComponentReactor} />
   }
