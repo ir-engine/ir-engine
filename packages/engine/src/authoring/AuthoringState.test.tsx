@@ -853,7 +853,8 @@ describe('AuthoringState', () => {
         name: 'MaterialCustomPlugin',
         jsonID: 'IR_material_custom',
         schema: S.Object({
-          customMap: S.String()
+          customMap: S.String(),
+          nullTest: S.String()
         })
       })
 
@@ -880,7 +881,8 @@ describe('AuthoringState', () => {
             node: {
               'material-0': {
                 IR_material_custom: {
-                  customMap: '/custom-map.png'
+                  customMap: '/custom-map.png',
+                  nullTest: null
                 }
               },
               nested: {

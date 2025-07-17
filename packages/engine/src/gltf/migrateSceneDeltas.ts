@@ -51,7 +51,7 @@ export const migrateSceneDeltas = (entity: Entity, gltf: GLTF.IGLTF) => {
         // add will fail gracefully if the value does already exist, so we just overwrite whatever is there with our partial
         // this is an inherent limitation, and should have minimal impact
         for (const [subKey, subValue] of Object.entries(value)) {
-          if (typeof subValue === 'object') {
+          if (typeof subValue === 'object' && subValue !== null) {
             overrideData[uuid].push({
               op: 'add',
               path: `${path}/${key}/${subKey}`,
