@@ -40,11 +40,11 @@ services:
     profiles: ["vectordb"] # Only starts in vectordb profile
     container_name: ir-engine_vector_db
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DATABASE: vector-db
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DATABASE: ${POSTGRES_DATABASE:-vector-db}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
   testdb-vector:

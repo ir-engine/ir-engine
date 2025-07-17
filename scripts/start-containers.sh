@@ -1,5 +1,6 @@
 #!/bin/bash
 test -f ../.env.local && . ../.env.local
+export POSTGRES_PORT POSTGRES_USER POSTGRES_PASSWORD POSTGRES_DATABASE
 
 if which docker > /dev/null 2>&1
 then
