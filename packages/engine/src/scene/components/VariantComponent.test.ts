@@ -163,6 +163,7 @@ describe('VariantComponent', () => {
 
     it('should render variant levels as instances when InstancingComponent is present', async () => {
       let distance = 0
+      setComponent(testEntity, InstancingComponent, { instanceMatrix: createInstanceMatrix() })
       setComponent(testEntity, VariantComponent, {
         heuristic: 'DISTANCE' as Heuristic,
         levels: lods.map((src) => {

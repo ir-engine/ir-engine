@@ -37,6 +37,7 @@ import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvM
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/GroundPlaneComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
+import { InstancingComponent } from '@ir-engine/engine/src/scene/components/InstancingComponent'
 import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { LookAtComponent } from '@ir-engine/engine/src/scene/components/LookAtComponent'
@@ -82,7 +83,13 @@ export const ComponentShelfCategoriesState = defineState({
   initial: () => {
     return {
       Files: [GLTFComponent, MediaComponent, VideoComponent, ImageComponent],
-      'Scene Composition': [CameraComponent, PrimitiveGeometryComponent, GroundPlaneComponent, VariantComponent],
+      'Scene Composition': [
+        CameraComponent,
+        PrimitiveGeometryComponent,
+        GroundPlaneComponent,
+        VariantComponent,
+        InstancingComponent
+      ],
       Physics: [ColliderComponent, RigidBodyComponent, TriggerCallbackComponent],
       Interaction: [
         SpawnPointComponent,

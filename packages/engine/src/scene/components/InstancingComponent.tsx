@@ -23,16 +23,96 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { InstancedBufferAttribute } from 'three'
+import { InstancedBufferAttribute, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useHookstate } from '@hookstate/core'
+import { Entity, useQueryBySource, UUIDComponent } from '@ir-engine/ecs'
+import { defineComponent, getComponent, useComponent, useEntityContext } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import React, { useEffect, useMemo } from 'react'
+import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler'
+import { seededRandom } from 'three/src/math/MathUtils'
+
+const identityMatrix = new Matrix4().identity()
+const buffer = new InstancedBufferAttribute(new Float32Array([...identityMatrix.elements]), 16)
+const instanceMatrixSchema = S.Type<InstancedBufferAttribute>({ default: () => buffer, serialized: false })
 
 export const InstancingComponent = defineComponent({
   name: 'InstancingComponent',
   jsonID: 'EE_instancing',
 
   schema: S.Object({
-    instanceMatrix: S.Class(() => new InstancedBufferAttribute(new Float32Array(16), 16))
-  })
+    useMesh: S.Bool({ default: false }),
+    count: S.Number({ default: 10 }),
+    seed: S.Number(),
+    activeMeshEntities: S.Record(S.String(), S.Bool()),
+    //internal
+    instanceMatrix: S.Type<InstancedBufferAttribute>({ default: () => buffer, serialized: false }),
+    // Map of mesh entity to samples
+    instanceBuffers: S.Record(S.Number(), instanceMatrixSchema, { serialized: false })
+  }),
+
+  reactor: () => {
+    const generator = useEntityContext()
+    const { useMesh, activeMeshEntities } = useComponent(generator, InstancingComponent)
+    const meshEntities = useQueryBySource(generator, [MeshComponent])
+
+    const samplers = useMemo(() => {
+      return meshEntities.filter((e) => {
+        return !!activeMeshEntities.value[getComponent(e, UUIDComponent).entityID]
+      })
+    }, [activeMeshEntities, meshEntities])
+
+    if (!useMesh.value) {
+      return null
+    }
+
+    return (
+      <>
+        {samplers.map((entity) => (
+          <MeshSampler entity={entity} generator={generator} key={`${entity}-${generator}`} />
+        ))}
+      </>
+    )
+  }
 })
+
+const MeshSampler = ({ entity, generator }: { entity: Entity; generator: Entity }) => {
+  const { count, seed, instanceBuffers } = useComponent(generator, InstancingComponent)
+  const mesh = useComponent(entity, MeshComponent)
+
+  const sampler = useHookstate(() => {
+    const sampler = new MeshSurfaceSampler(mesh.value as Mesh)
+    sampler.build()
+    return sampler
+  })
+
+  useEffect(() => {
+    const matrices = [] as number[]
+    const position = new Vector3()
+    const scale = new Vector3(1, 1, 1)
+
+    for (let i = 0; i < count.value; i++) {
+      const rot = new Quaternion().setFromAxisAngle(Vector3_Up, seededRandom(seed.value + i) * Math.PI * 2)
+
+      sampler.value.sample(position)
+
+      const matrix = new Matrix4().compose(position, rot, scale)
+      matrices.push(...matrix.elements)
+    }
+
+    const buffer = new InstancedBufferAttribute(new Float32Array(matrices), 16)
+    instanceBuffers.merge({ [entity]: buffer })
+
+    return () => {
+      instanceBuffers.set((data) => {
+        delete data[entity]
+        return data
+      })
+    }
+  }, [count])
+
+  return null
+}

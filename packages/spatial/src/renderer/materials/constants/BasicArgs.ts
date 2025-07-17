@@ -75,6 +75,11 @@ export const BasicArgs = {
   vertexColors: { default: false, type: 'boolean' }
 }
 
+export const WeightMapArgs = {
+  weight: TextureArg,
+  weightStrength: { ...FloatArg, default: 1 }
+}
+
 export const BumpMapArgs = {
   bumpMap: TextureArg,
   bumpScale: { ...FloatArg, default: 1 }

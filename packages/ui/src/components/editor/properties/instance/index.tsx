@@ -27,25 +27,72 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdScatterPlot } from 'react-icons/md'
 
-import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getChildrenWithComponents, UUIDComponent } from '@ir-engine/ecs'
+import { getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
+import { commitProperty, EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { InstancingComponent } from '@ir-engine/engine/src/scene/components/InstancingComponent'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import Checkbox from '../../../../primitives/tailwind/Checkbox'
+import InputGroup from '../../input/Group'
+import NumericInput from '../../input/Numeric'
 
-export const InstancingNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
+export const InstancingNodeEditor: EditorComponentType = ({ entity }: { entity: Entity }) => {
   const { t } = useTranslation()
-  const entity = props.entity
 
   const instancingComponent = useComponent(entity, InstancingComponent)
+  const meshEntities = getChildrenWithComponents(entity, [MeshComponent])
+
+  const meshInfos = meshEntities.map((e) => ({
+    entity: e,
+    mesh: getComponent(e, MeshComponent),
+    name: getComponent(e, NameComponent),
+    uiud: getComponent(e, UUIDComponent).entityID
+  }))
+
+  const { activeMeshEntities } = instancingComponent
+  const toggleMesh = (uuid: string) => {
+    commitProperty(
+      InstancingComponent,
+      'activeMeshEntities'
+    )({ ...activeMeshEntities.value, [uuid]: !activeMeshEntities.value[uuid] })
+  }
+
+  const randomize = () => {
+    commitProperty(InstancingComponent, 'seed')(Math.round(Math.random() * 10 ** 5))
+  }
 
   return (
     <NodeEditor
       name={t('editor:properties.instancing.name')}
       description={t('editor:properties.instancing.description')}
       Icon={InstancingNodeEditor.iconComponent}
-      {...props}
-    ></NodeEditor>
+      entity={entity}
+    >
+      <InputGroup label={'Settings'}>
+        <Checkbox
+          checked={instancingComponent.useMesh.value}
+          onChange={commitProperty(InstancingComponent, 'useMesh')}
+        />
+        <NumericInput value={instancingComponent.count.value} onChange={commitProperty(InstancingComponent, 'count')} />
+        <NumericInput
+          displayPrecision={0}
+          value={instancingComponent.seed.value}
+          onChange={commitProperty(InstancingComponent, 'seed')}
+        />
+        <button onClick={randomize}>Randomize</button>
+      </InputGroup>
+      <InputGroup label={'Meshes'}>
+        {meshInfos.map((info, index) => (
+          <div key={index}>
+            <label>{info.name}</label>
+            <Checkbox checked={!!activeMeshEntities.value[info.uiud]} onChange={() => toggleMesh(info.uiud)} />
+          </div>
+        ))}
+      </InputGroup>
+    </NodeEditor>
   )
 }
 
