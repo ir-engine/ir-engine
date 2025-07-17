@@ -45,6 +45,7 @@ import '../styles.scss'
 const LocationRoutes = () => {
   const ref = useRef<HTMLElement>(document.body)
   const ready = useHookstate(getMutableState(LoadingUISystemState).ready).value
+  const progress = useHookstate(getMutableState(LoadingUISystemState).progress).value
 
   useSpatialEngine()
   useEngineCanvas(ref)
@@ -63,7 +64,13 @@ const LocationRoutes = () => {
       )}
       {!ready && (
         <div className="relative flex h-dvh w-dvw items-center justify-center bg-white" style={{ zIndex: 100 }}>
-          <LoadingView fullScreen animated title={t('common:loader.loadingApp')} titleClassname="text-black" />
+          <LoadingView
+            fullScreen
+            animated
+            title={t('common:loader.loadingApp')}
+            titleClassname="text-black"
+            progress={progress}
+          />
         </div>
       )}
       <Debug />

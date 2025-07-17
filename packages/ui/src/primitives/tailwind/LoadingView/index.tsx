@@ -36,7 +36,8 @@ const LoadingView = ({
   containerClassName,
   titleClassname,
   spinnerOnly,
-  animated
+  animated,
+  progress
 }: {
   title?: string
   description?: string
@@ -47,6 +48,7 @@ const LoadingView = ({
   titleClassname?: string
   spinnerOnly?: boolean
   animated?: boolean
+  progress?: number
 }) => {
   const loader = (
     <div role="status" className={twMerge('relative mx-auto my-0 block h-full w-full', className)}>
@@ -84,6 +86,16 @@ const LoadingView = ({
     >
       {animated ? <img src={LoadingAnimation} alt="loading spinner" className="h-1/2 bg-cover bg-center" /> : loader}
       {title && <Text className={twMerge('text-text-primary', titleClassname)}>{title}</Text>}
+      {progress !== undefined && (
+        <div className="mt-4 w-64">
+          <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+            <div
+              className="h-2 rounded-full bg-gray-600 transition-all duration-300 ease-in-out dark:bg-gray-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+      )}
       {description && <Text className="opacity-65">{description}</Text>}
     </div>
   )
