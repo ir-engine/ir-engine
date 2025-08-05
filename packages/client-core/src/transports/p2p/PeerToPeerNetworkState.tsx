@@ -25,15 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { API, useFind } from '@ir-engine/common'
 import { IceServer } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
-import {
-  ChannelID,
-  InstanceAttendanceType,
-  InstanceID,
-  LocationID,
-  instanceAttendancePath,
-  instanceSignalingPath
-} from '@ir-engine/common/src/schema.type.module'
-import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { PUBLIC_STUN_SERVERS } from '@ir-engine/common/src/constants/STUNServers'
+import { ChannelID, InstanceID, LocationID, instanceSignalingPath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import {
@@ -114,7 +107,7 @@ const ConnectionReactor = (props: { instanceID: InstanceID; topic: Topic }) => {
         if (abortController.signal.aborted) return
 
         /** @todo it's probably fine that we override this every time we connect to a new server, but we should maybe handle this smarter */
-        getMutableState(StunServerState).set(response.iceServers)
+        getMutableState(StunServerState).set(response.iceServers ?? PUBLIC_STUN_SERVERS)
 
         joinResponse.set(response)
       })
@@ -172,17 +165,18 @@ const ConnectionReactor = (props: { instanceID: InstanceID; topic: Topic }) => {
   return <PeersReactor instanceID={props.instanceID} />
 }
 
+type PeerInfo = {
+  peerID: PeerID
+  peerIndex: number
+  userID: UserID
+}
+
 const PeersReactor = (props: { instanceID: InstanceID }) => {
   const lastPoll = useHookstate(new Date(new Date().getTime() - 10000))
 
-  const instanceAttendanceQuery = useFind(instanceAttendancePath, {
+  const instanceSignalQuery = useFind(instanceSignalingPath, {
     query: {
-      instanceId: props.instanceID,
-      ended: false,
-      updatedAt: {
-        // Only consider instances that have been updated in the last 10 seconds
-        $gt: toDateTimeSql(lastPoll.value)
-      }
+      instanceID: props.instanceID
     }
   })
 
@@ -195,24 +189,24 @@ const PeersReactor = (props: { instanceID: InstanceID }) => {
     }
   }, [])
 
-  const otherPeers = useHookstate<InstanceAttendanceType[]>([])
+  const otherPeers = useHookstate<PeerInfo[]>([])
 
   useEffect(() => {
-    if (instanceAttendanceQuery.status === 'success') {
-      otherPeers.set(instanceAttendanceQuery.data.filter((peer) => peer.peerId !== Engine.instance.store.peerID))
+    if (instanceSignalQuery.status === 'success') {
+      otherPeers.set(instanceSignalQuery.data.filter((peer) => peer.peerID !== Engine.instance.store.peerID))
     }
-  }, [instanceAttendanceQuery.status])
+  }, [instanceSignalQuery.status])
 
   return (
     <>
       {otherPeers.value.map((peer) => (
-        <ErrorBoundary key={peer.id}>
+        <ErrorBoundary key={peer.peerID}>
           <Suspense>
             <PeerReactor
-              key={peer.peerId}
-              peerID={peer.peerId}
+              key={peer.peerID}
+              peerID={peer.peerID}
               peerIndex={peer.peerIndex}
-              userID={peer.userId}
+              userID={peer.userID}
               instanceID={props.instanceID}
             />
           </Suspense>

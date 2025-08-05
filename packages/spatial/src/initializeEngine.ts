@@ -54,6 +54,7 @@ export const initializeSpatialViewer = (canvas?: HTMLCanvasElement) => {
   })
   setComponent(viewerEntity, TransformComponent)
   setComponent(viewerEntity, CameraComponent)
+  setComponent(viewerEntity, TransformComponent)
   setComponent(viewerEntity, VisibleComponent, true)
   setComponent(viewerEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
   setComponent(viewerEntity, InputComponent)

@@ -46,9 +46,9 @@ import {
   locationPath,
   moderationBanPath
 } from '@ir-engine/common/src/schema.type.module'
-import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { getDateTimeSql, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
-import type { MessageTypes } from '@ir-engine/hyperflux'
+import type { MessageTypes, UserID } from '@ir-engine/hyperflux'
 import { PeerID, getState } from '@ir-engine/hyperflux'
 import crypto from 'crypto'
 import { Application } from '../../../declarations'
@@ -67,11 +67,18 @@ type SignalData = {
   message: MessageTypes
 }
 
+type PeerInfo = {
+  peerID: PeerID
+  peerIndex: number
+  userID: UserID
+}
+
 declare module '@ir-engine/common/declarations' {
   interface ServiceTypes {
     [instanceSignalingPath]: {
-      create: (data: InstanceSignalingDataType, params?: Params) => ReturnType<typeof peerJoin>
+      find: (params?: Params) => Promise<PeerInfo[]>
       get: (data: InstanceSignalingDataType, params?: Params) => Promise<void>
+      create: (data: InstanceSignalingDataType, params?: Params) => ReturnType<typeof peerJoin>
       patch: (id: null, data: Omit<SignalData, 'fromPeerID'>, params?: Params) => Promise<InstanceSignalingDataType>
     }
   }
@@ -189,8 +196,27 @@ const peerJoin = async (app: Application, data: InstanceSignalingDataType, param
 
 export default (app: Application): void => {
   app.use(instanceSignalingPath, {
-    /** Notify server peer has joined */
-    create: async (data, params) => peerJoin(app, data, params!),
+    /** Get all peers in an instance */
+    find: async (params?: Params) => {
+      const instanceID = params?.query?.instanceID as InstanceID
+      if (!instanceID) return [] as PeerInfo[]
+      const instanceAttendance = await app.service(instanceAttendancePath).find({
+        query: {
+          instanceId: instanceID,
+          ended: false,
+          $limit: 100,
+          updatedAt: {
+            // Only consider instances that have been updated in the last 10 seconds
+            $gt: toDateTimeSql(new Date(new Date().getTime() - 10000))
+          }
+        }
+      })
+      return instanceAttendance.data.map((attendance) => ({
+        peerID: attendance.peerId,
+        peerIndex: attendance.peerIndex,
+        userID: attendance.userId
+      }))
+    },
     /** Heartbeat */
     get: async (data: InstanceSignalingDataType, params) => {
       const peerID = params!.socketQuery!.peerID
@@ -225,6 +251,8 @@ export default (app: Application): void => {
 
       // console.log('heartbeat', peerID, instanceId)
     },
+    /** Notify server peer has joined */
+    create: async (data, params) => peerJoin(app, data, params!),
     /** Send requests to other peers */
     patch: async (id: null, data: SignalData, params) => {
       const peerID = params!.socketQuery!.peerID
@@ -295,7 +323,7 @@ export default (app: Application): void => {
     app.channel(`peerIds/${peerID}`).leave(connection)
   })
 
-  app.service(instanceAttendancePath).publish('patched', async (data, context) => {
+  app.service(instanceAttendancePath).on('patched', async (data, context) => {
     // assume only one instanceAttendance is patched at a time
     const [instanceAttendance] = Array.isArray(data) ? data : 'data' in data ? data.data : [data]
     if (!instanceAttendance.ended) return
@@ -307,14 +335,26 @@ export default (app: Application): void => {
       })
     }
 
-    return app.channel(`instance/${instanceAttendance.instanceId}`).send([instanceAttendance])
+    return app.channel(`instance/${instanceAttendance.instanceId}`).send([
+      {
+        peerID: instanceAttendance.peerId,
+        peerIndex: instanceAttendance.peerIndex,
+        userID: instanceAttendance.userId
+      }
+    ])
   })
 
-  app.service(instanceAttendancePath).publish('created', async (data, context) => {
+  app.service(instanceAttendancePath).on('created', async (data, context) => {
     // assume only one instanceAttendance is patched at a time
     const [instanceAttendance] = Array.isArray(data) ? data : 'data' in data ? data.data : [data]
 
-    return app.channel(`instance/${instanceAttendance.instanceId}`).send([instanceAttendance])
+    return app.channel(`instance/${instanceAttendance.instanceId}`).send([
+      {
+        peerID: instanceAttendance.peerId,
+        peerIndex: instanceAttendance.peerIndex,
+        userID: instanceAttendance.userId
+      }
+    ])
   })
 
   app.service(instanceSignalingPath).publish('patched', async (data: SignalData, context) => {
