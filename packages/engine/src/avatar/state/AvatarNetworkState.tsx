@@ -42,6 +42,7 @@ import { defineState, getMutableState, none, useHookstate, useMutableState } fro
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { ResourceProgressComponent } from '../../gltf/ResourceProgressComponent'
 
 export const AvatarState = defineState({
   name: 'ee.engine.avatar.AvatarState',
@@ -100,11 +101,40 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
   useEffect(() => {
     if (!entity || !avatarURL.value) return
 
-    setComponent(entity, GLTFComponent, { src: avatarURL.value })
+    const testAvatarURL = async (url: string) => {
+      try {
+        const response = await fetch(url, { method: 'HEAD', signal: AbortSignal.timeout(5000) })
+        return response.ok
+      } catch (error) {
+        return false
+      }
+    }
+
+    const loadAvatar = async () => {
+      const isAccessible = await testAvatarURL(avatarURL.value)
+      if (!isAccessible) {
+        return
+      }
+
+      const sourceID = GLTFComponent.getSourceID(entity)
+      const existingEntities = UUIDComponent.getEntitiesBySource(sourceID)
+      for (const childEntity of existingEntities) {
+        if (getOptionalComponent(childEntity, ResourceProgressComponent)) {
+          removeComponent(childEntity, ResourceProgressComponent)
+        }
+      }
+
+      setComponent(entity, GLTFComponent, { src: avatarURL.value })
+      return () => {}
+    }
+
+    const load = loadAvatar()
 
     return () => {
       if (!entityExists(entity)) return
       removeComponent(entity, GLTFComponent)
+      removeComponent(entity, ResourceProgressComponent)
+      if (load) load.then((fn) => fn?.())
     }
   }, [avatarURL.value, entity])
 
