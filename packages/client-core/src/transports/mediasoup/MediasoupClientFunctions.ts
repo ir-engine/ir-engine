@@ -193,8 +193,6 @@ export const connectToInstance = (
           pingInterval: config.websocket.pingInterval
         })
       } else {
-        query.address = ipAddress
-        query.port = port.toString()
         const queryString = new URLSearchParams(query).toString()
         primus = new Primus(`${config.client.instanceserverUrl}?${queryString}`, {
           pingTimeout: config.websocket.pingTimeout,
